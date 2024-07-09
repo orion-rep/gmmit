@@ -16,6 +16,9 @@ import (
 )
 
 func main() {
+
+	Info("Generating commit message...")
+
 	gitDiff, err := exec.Command("git","diff","--staged").Output()
     CheckIfError(err)
 	
@@ -27,8 +30,7 @@ func main() {
 				commitStandard, gitBranch, gitDiff)
 
 	ctx := context.Background()
-	//client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
-	client, err := genai.NewClient(ctx, option.WithAPIKey("AIzaSyA9tvx6nVAmDVJn70tjn0JsJSh4qIHZ_4s"))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +39,6 @@ func main() {
 	cs := model.StartChat()
 
 	send := func(msg string) *genai.GenerateContentResponse {
-		//fmt.Printf("== Me: %s\n== Model:\n", msg)
 		res, err := cs.SendMessage(ctx, genai.Text(msg))
 		if err != nil {
 			log.Fatal(err)
@@ -48,7 +49,7 @@ func main() {
 	res := send(prompt)
 	stringRes := responseToString(res)
 	printResponse(res)
-	Info("Create commit with this message? [y/N]")
+	Info("Create a commit with this message? [y/N]")
 	reader := bufio.NewReader(os.Stdin)
 	confirmation, err := reader.ReadString('\n')
 		if err != nil {
@@ -56,9 +57,10 @@ func main() {
 		}
 	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
 	if confirmation == "y" || confirmation == "yes" {
-		Info("Creating Commit")
+		Info("Creating Commit...")
 		gitCommit, err := exec.Command("git","commit","-m",stringRes).Output()
     	CheckIfError(err)
+		Info("Done.\nGit Log:")
 		Info(string(gitCommit))
 	} 
 }
@@ -75,6 +77,7 @@ func responseToString(resp *genai.GenerateContentResponse)(string){
 	return stringResponse
 }
 func printResponse(resp *genai.GenerateContentResponse) {
+	Info("---")
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
 			for _, part := range cand.Content.Parts {
