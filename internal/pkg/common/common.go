@@ -3,8 +3,16 @@ package common
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
+
+func RunCommand(command string, params ...string) ([]byte) {
+	output, err := exec.Command(command, params...).Output()
+    CheckIfError(err)
+
+	return output
+}
 
 // CheckArgs should be used to ensure the right command line arguments are
 // passed before executing an example.
