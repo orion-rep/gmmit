@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"context"
 	"os"
-	"os/exec"
 	"fmt"
 	"strings"
 	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
@@ -17,10 +17,17 @@ import (
 
 func main() {
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	
 	Info("Getting context information.")
 	
-	gitDiff, err := exec.Command("git","diff","--staged").Output()
-    CheckIfError(err)
+	GetEnvArg("GMMIT_API_KEY")
+
+	//gitDiff, err := exec.Command("git","diff","--staged").Output()
+	gitDiff := RunCommand("git","diff","--staged")
 
 	if len(gitDiff) <= 0 {
 		Warning("Git diff returned no files.")
@@ -28,8 +35,7 @@ func main() {
 		os.Exit(0)
 	}
 	
-	gitBranch, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
-    CheckIfError(err)
+	gitBranch := RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")
     
 	Info("Generating commit message.")
 
@@ -38,7 +44,7 @@ func main() {
 				commitStandard, gitBranch, gitDiff)
 
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GMMIT_API_KEY")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +72,7 @@ func main() {
 	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
 	if confirmation == "y" || confirmation == "yes" {
 		Info("Creating Commit...")
-		gitCommit, err := exec.Command("git","commit","-m",stringRes).Output()
+		gitCommit := RunCommand("git","commit","-m",stringRes)
     	CheckIfError(err)
 		Info("Git Command Log:")
 		fmt.Println(string(gitCommit))

@@ -24,7 +24,7 @@ env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
 2. Export it on your env:
 
 ```bash
-export GEMINI_API_KEY="<API_KEY>"
+export GMMIT_API_KEY="<API_KEY>"
 ```
 
 

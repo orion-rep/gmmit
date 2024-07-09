@@ -14,6 +14,15 @@ func RunCommand(command string, params ...string) ([]byte) {
 	return output
 }
 
+func GetEnvArg(name string) (string) {
+	value, exists := os.LookupEnv(name)
+    if !exists {
+		Warning(fmt.Sprintf("Env var '%s' is not present", name))
+		os.Exit(1)
+	}
+	return value
+}
+
 // CheckArgs should be used to ensure the right command line arguments are
 // passed before executing an example.
 func CheckArgs(arg ...string) {
