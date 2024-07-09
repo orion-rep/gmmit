@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	
+
 	Info("Getting context information.")
 	
 	GetEnvArg("GMMIT_API_KEY")
@@ -40,7 +40,7 @@ func main() {
 	Info("Generating commit message.")
 
     commitStandard := "Conventional Commits"
-	prompt := fmt.Sprintf("Create a git commit message following the \"%s\" standard for branch \"%s\". Respond with the commit message only. These are the file changes to be pushed:%s",
+	prompt := fmt.Sprintf("Create a git commit message following the \"%s\" standard for branch \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:%s",
 				commitStandard, gitBranch, gitDiff)
 
 	ctx := context.Background()
