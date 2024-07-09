@@ -17,14 +17,16 @@ import (
 
 func main() {
 
-	Info("Generating commit message...")
-
+	Info("Getting context information.")
+	
 	gitDiff, err := exec.Command("git","diff","--staged").Output()
     CheckIfError(err)
 	
 	gitBranch, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
     CheckIfError(err)
     
+	Info("Generating commit message.")
+
     commitStandard := "Conventional Commits"
 	prompt := fmt.Sprintf("Create a git commit message following the \"%s\" standard for branch \"%s\". Respond with the commit message only. These are the file changes to be pushed:%s",
 				commitStandard, gitBranch, gitDiff)
@@ -60,8 +62,8 @@ func main() {
 		Info("Creating Commit...")
 		gitCommit, err := exec.Command("git","commit","-m",stringRes).Output()
     	CheckIfError(err)
-		Info("Done.\nGit Log:")
-		Info(string(gitCommit))
+		Info("Git Command Log:")
+		fmt.Println(gitCommit)
 	} 
 }
 
@@ -77,11 +79,11 @@ func responseToString(resp *genai.GenerateContentResponse)(string){
 	return stringResponse
 }
 func printResponse(resp *genai.GenerateContentResponse) {
+	Info("Generated Text:")
 	Info("---")
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
 			for _, part := range cand.Content.Parts {
-				//Info(part)
 				fmt.Println(part)
 			}
 		}
