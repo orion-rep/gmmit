@@ -21,6 +21,12 @@ func main() {
 	
 	gitDiff, err := exec.Command("git","diff","--staged").Output()
     CheckIfError(err)
+
+	if len(gitDiff) <= 0 {
+		Warning("Git diff returned no files.")
+		Warning("Add some files to the staging area and run this command again.")
+		os.Exit(0)
+	}
 	
 	gitBranch, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
     CheckIfError(err)
@@ -63,7 +69,7 @@ func main() {
 		gitCommit, err := exec.Command("git","commit","-m",stringRes).Output()
     	CheckIfError(err)
 		Info("Git Command Log:")
-		fmt.Println(gitCommit)
+		fmt.Println(string(gitCommit))
 	} 
 }
 
