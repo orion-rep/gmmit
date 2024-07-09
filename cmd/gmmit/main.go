@@ -16,11 +16,6 @@ import (
 )
 
 func main() {
-	CheckArgs("<directory>")
-	directory := os.Args[1]
-
-	Info(directory)
-
 	gitDiff, err := exec.Command("git","diff","--staged").Output()
     CheckIfError(err)
 	
@@ -61,9 +56,10 @@ func main() {
 		}
 	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
 	if confirmation == "y" || confirmation == "yes" {
+		Info("Creating Commit")
 		gitCommit, err := exec.Command("git","commit","-m",stringRes).Output()
     	CheckIfError(err)
-		Info(fmt.Sprintln(gitCommit))
+		Info(string(gitCommit))
 	} 
 }
 
