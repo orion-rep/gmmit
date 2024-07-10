@@ -8,46 +8,30 @@ import (
 	"strings"
 	"log"
 
-	"github.com/joho/godotenv"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
+var commitStandard, prompt string = "",""
+
 func main() {
 
-	err := godotenv.Load(string(os.Getenv("HOME")) + "/.gmenv")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	Info("Getting context information.")
+	LoadEnvironment()
+	gitDiff, gitBranch := GetCommitContext()
 	
-	apiKey := GetEnvArg("GMMIT_API_KEY")
-
-	//gitDiff, err := exec.Command("git","diff","--staged").Output()
-	gitDiff := RunCommand("git","diff","--staged")
-
-	if len(gitDiff) <= 0 {
-		Warning("Git diff returned no files.")
-		Warning("Add some files to the staging area and run this command again.")
-		os.Exit(0)
-	}
-	
-	gitBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
-    
 	Info("Generating commit message.")
 
     //commitStandard := "Conventional Commits"
-    commitStandard := GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")
-	prompt := fmt.Sprintf("Create a git commit message following the \"Conventional Commits\" standard: \"%s\". The Ticket ID MUST be present on the first line, look for it on the branch name: \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:\n%s",
+    commitStandard = GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")
+	prompt = fmt.Sprintf("Create a git commit message following the \"Conventional Commits\" standard: \"%s\". The Ticket ID MUST be present on the first line, look for it on the branch name: \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:\n%s",
 				commitStandard, gitBranch, gitDiff)
 
 	Debug(prompt)
 
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(GetEnvArg("GMMIT_API_KEY")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,8 +60,7 @@ func main() {
 	if confirmation == "y" || confirmation == "yes" {
 		Info("Creating Commit...")
 		gitCommit := RunCommand("git","commit","-m",stringRes)
-    	CheckIfError(err)
-		Info("Git Command Log:")
+    	Info("Git Command Log:")
 		fmt.Println(string(gitCommit))
 	} 
 }

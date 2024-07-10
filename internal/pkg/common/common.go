@@ -5,26 +5,16 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
 )
 
 func RunCommand(command string, params ...string) ([]byte) {
+	Debug("Running command: \"%s\", with params: %s",command, params)
 	output, err := exec.Command(command, params...).Output()
+	Debug("Command output: %s", output)
     CheckIfError(err)
 
 	return output
-}
-
-func GetEnvArg(name string, defaultValue ...string) (string) {
-	value, exists := os.LookupEnv(name)
-    if !exists {
-		if len(defaultValue) > 0 {
-			return defaultValue[0]
-		} else {
-			Warning(fmt.Sprintf("Env var '%s' is not present", name))
-			os.Exit(1)
-		}
-	}
-	return value
 }
 
 // CheckArgs should be used to ensure the right command line arguments are
@@ -44,21 +34,4 @@ func CheckIfError(err error) {
 
 	fmt.Printf("\x1b[31;1m%s\x1b[0m\n", fmt.Sprintf("error: %s", err))
 	os.Exit(1)
-}
-
-// Info should be used to describe the example commands that are about to run.
-func Debug(format string, args ...interface{}) {
-	debug := GetEnvArg("GMMIT_DEBUG", "false")
-	if debug == "true" {
-		fmt.Printf("\x1b[35;1m[DEBG] %s\x1b[0m\n", fmt.Sprintf(format, args...))
-	}
-}
-// Info should be used to describe the example commands that are about to run.
-func Info(format string, args ...interface{}) {
-	fmt.Printf("\x1b[34;1m[INFO] %s\x1b[0m\n", fmt.Sprintf(format, args...))
-}
-
-// Warning should be used to display a warning
-func Warning(format string, args ...interface{}) {
-	fmt.Printf("\x1b[33;1m[WARN] %s\x1b[0m\n", fmt.Sprintf(format, args...))
 }
