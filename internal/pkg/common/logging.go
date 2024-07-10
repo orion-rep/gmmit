@@ -20,3 +20,8 @@ func Info(format string, args ...interface{}) {
 func Warning(format string, args ...interface{}) {
 	fmt.Printf("\x1b[33;1m[WARN] %s\x1b[0m\n", fmt.Sprintf(format, args...))
 }
+
+// Warning should be used to display a warning
+func Error(format string, args ...interface{}) {
+	fmt.Printf("\x1b[31;1m[ERRO] %s\x1b[0m\n", fmt.Sprintf(format, args...))
+}
