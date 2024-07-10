@@ -1,4 +1,5 @@
-# g-mmit
+# GMMIT
+
 
 
 https://github.com/golang-standards/project-layout/tree/master/internal
@@ -21,17 +22,22 @@ env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
 
 1. Get a Gemini API Key: 
 
-2. Export it on your env:
+2. Setup your env:
 
 ```bash
-export GMMIT_API_KEY="<API_KEY>"
+echo GMMIT_API_KEY="<API_KEY>" > ~/.gmenv
 ```
 
+Here's how: https://geminiforwork.gwaddons.com/setup-api-keys/set-up-geminiai-api-key
 
 3. Run the binary on a folder inside a git repository:
 
 ```bash
-./build/gmmit
+gmmit
 ```
+
+i.e.:
+
+![gmmit command example](images/commit.gif)
 
 4. Profit
