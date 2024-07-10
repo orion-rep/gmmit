@@ -50,7 +50,7 @@ func CheckIfError(err error, context ...string) {
 	os.Exit(1)
 }
 
-func AskConfirmation(message string) (bool) {
+func AskConfirmation(message string) (int) {
 
 	Info(message)
 
@@ -61,7 +61,7 @@ func AskConfirmation(message string) (bool) {
 		}
 	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
 	if confirmation == "y" || confirmation == "yes" {
-		return true
+		return 1
 	} 
-	return false
+	return 0
 }
