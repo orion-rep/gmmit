@@ -17,14 +17,14 @@ import (
 
 func main() {
 
-	err := godotenv.Load()
+	err := godotenv.Load(string(os.Getenv("HOME")) + "/.gmenv")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
 	Info("Getting context information.")
 	
-	GetEnvArg("GMMIT_API_KEY")
+	apiKey := GetEnvArg("GMMIT_API_KEY")
 
 	//gitDiff, err := exec.Command("git","diff","--staged").Output()
 	gitDiff := RunCommand("git","diff","--staged")
@@ -35,16 +35,19 @@ func main() {
 		os.Exit(0)
 	}
 	
-	gitBranch := RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")
+	gitBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
     
 	Info("Generating commit message.")
 
-    commitStandard := "Conventional Commits"
-	prompt := fmt.Sprintf("Create a git commit message following the \"%s\" standard for branch \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:%s",
+    //commitStandard := "Conventional Commits"
+    commitStandard := GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")
+	prompt := fmt.Sprintf("Create a git commit message following the \"Conventional Commits\" standard: \"%s\". The Ticket ID MUST be present on the first line, look for it on the branch name: \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:\n%s",
 				commitStandard, gitBranch, gitDiff)
 
+	Debug(prompt)
+
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GMMIT_API_KEY")))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		log.Fatal(err)
 	}
