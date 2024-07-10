@@ -3,7 +3,6 @@ package common
 import (
 	"os"
 	"fmt"
-	"log"
 
 	"github.com/joho/godotenv"
 )
