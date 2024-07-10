@@ -35,7 +35,7 @@ func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg s
 	return res
 }
 
-func ResponseToString(resp *genai.GenerateContentResponse)(string){
+func ModelResponseToString(resp *genai.GenerateContentResponse)(string){
 	stringResponse := ""
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
@@ -45,4 +45,17 @@ func ResponseToString(resp *genai.GenerateContentResponse)(string){
 		}
 	}
 	return stringResponse
+}
+
+func PrintModelResponse(resp *genai.GenerateContentResponse) {
+	Info("Generated Text:")
+	Info("---")
+	for _, cand := range resp.Candidates {
+		if cand.Content != nil {
+			for _, part := range cand.Content.Parts {
+				fmt.Println(part)
+			}
+		}
+	}
+	Info("---")
 }
