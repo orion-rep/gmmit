@@ -12,22 +12,31 @@ import (
 )
 
 func RunPrompt(prompt string) (*genai.GenerateContentResponse) {
-
 	ctx := context.Background()
+	Debug("Getting GenAI Client")
 	client, err := genai.NewClient(ctx, option.WithAPIKey(GetEnvArg("GMMIT_API_KEY")))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
+	Debug("Getting GenAI Model")
 	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-1.5-pro"))
+	model.SafetySettings = []*genai.SafetySetting{
+		{
+			Category:  genai.HarmCategoryDangerousContent,
+			Threshold: genai.HarmBlockOnlyHigh,
+		},
+	}
 	
 	res := SendMessageToModel(ctx, model, prompt)
-
+	
 	return res
 }
 
 func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg string) *genai.GenerateContentResponse {
+	Debug("Starting GenAI Chat")
 	cs := model.StartChat()
+	Debug("Sending GenAI Message")
 	res, err := cs.SendMessage(ctx, genai.Text(msg))
 	if err != nil {
 		log.Fatal(err)

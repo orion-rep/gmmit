@@ -26,7 +26,6 @@ func GenerateCommitMessage() {
 				commitStandard, gitBranch, gitDiff)
 	
 	Debug(prompt)
-
 	res := RunPrompt(prompt)
 
 	PrintModelResponse(res)
@@ -46,8 +45,8 @@ func GetCommitContext()(string, string) {
 	diff := string(RunCommand("git","diff","--staged"))
 
 	if len(diff) <= 0 {
-		Warning("Git diff returned no files.")
-		Warning("Add some files to the staging area and run this command again.")
+		Warning("Git diff returned no files")
+		Warning("Add some files to the staging area and run this command again")
 		os.Exit(0)
 	}
 	
@@ -59,7 +58,14 @@ func GetCommitContext()(string, string) {
 
 func CreateCommit(msg string) {
 	Info("Creating Commit...")
-	gitCommit := RunCommand("git","commit","-m",msg)
+	gitOptions := [] string { "commit" }
+	if *noVerifyFlag == true {
+		Debug("Adding '--no-verify' option to git commit")
+		gitOptions = append(gitOptions, "--no-verify")
+	}
+	gitOptions = append(gitOptions,"-m",msg)
+	
+	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
 	fmt.Println(string(gitCommit))
