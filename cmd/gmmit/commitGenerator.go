@@ -58,10 +58,13 @@ func GetCommitContext()(string, string) {
 
 func CreateCommit(msg string) {
 	Info("Creating Commit...")
-	gitOptions := [] string { "commit","-m",msg }
+	gitOptions := [] string { "commit" }
 	if *noVerifyFlag == true {
+		Debug("Adding '--no-verify' option to git commit")
 		gitOptions = append(gitOptions, "--no-verify")
 	}
+	gitOptions = append(gitOptions,"-m",msg)
+	
 	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
