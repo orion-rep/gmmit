@@ -46,8 +46,8 @@ func GetCommitContext()(string, string) {
 	diff := string(RunCommand("git","diff","--staged"))
 
 	if len(diff) <= 0 {
-		Warning("Git diff returned no files.")
-		Warning("Add some files to the staging area and run this command again.")
+		Warning("Git diff returned no files")
+		Warning("Add some files to the staging area and run this command again")
 		os.Exit(0)
 	}
 	
@@ -59,7 +59,11 @@ func GetCommitContext()(string, string) {
 
 func CreateCommit(msg string) {
 	Info("Creating Commit...")
-	gitCommit := RunCommand("git","commit","-m",msg)
+	gitOptions := ""
+	if *noVerifyFlag == true {
+		gitOptions = "--no-verify"
+	}
+	gitCommit := RunCommand("git","commit","-m",msg, gitOptions)
 
 	Info("Git Command Log:")
 	fmt.Println(string(gitCommit))
