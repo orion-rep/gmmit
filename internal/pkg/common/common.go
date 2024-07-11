@@ -67,3 +67,12 @@ func AskConfirmation(message string) (int) {
 	}
 	return 0
 }
+
+func CommandExists(cmd string) {
+	Debug("Checking %s installation", cmd)
+	_, err := exec.LookPath(cmd)
+	if err != nil {
+		Warning("%s could not be found. Install it and run this command again.", cmd)
+	} 
+	CheckIfError(err)
+}
