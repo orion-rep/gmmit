@@ -41,3 +41,11 @@ i.e.:
 ![gmmit command example](images/commit.gif)
 
 4. Profit
+
+## Troubleshooting
+
+```
+<date-time> blocked: candidate: FinishReasonSafety
+```
+
+This error happen when the AI Model detects the content being sent is potencially dangerous. Review the content of the changes being sent and try again.
