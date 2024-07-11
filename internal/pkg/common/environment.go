@@ -22,6 +22,7 @@ func GetEnvArg(name string, defaultValue ...string) (string) {
 
 func LoadEnvironment() {
 	Debug("Loading environment variables from ~/.gmenv file")
+	CommandExists("git")
 	err := godotenv.Load(string(os.Getenv("HOME")) + "/.gmenv")
 	if err != nil {
 		Error("Error loading ~/.gmenv file")
