@@ -26,7 +26,6 @@ func GenerateCommitMessage() {
 				commitStandard, gitBranch, gitDiff)
 	
 	Debug(prompt)
-
 	res := RunPrompt(prompt)
 
 	PrintModelResponse(res)
@@ -59,11 +58,11 @@ func GetCommitContext()(string, string) {
 
 func CreateCommit(msg string) {
 	Info("Creating Commit...")
-	gitOptions := ""
+	gitOptions := [] string { "commit","-m",msg }
 	if *noVerifyFlag == true {
-		gitOptions = "--no-verify"
+		gitOptions = append(gitOptions, "--no-verify")
 	}
-	gitCommit := RunCommand("git","commit","-m",msg, gitOptions)
+	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
 	fmt.Println(string(gitCommit))
