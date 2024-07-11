@@ -1,10 +1,12 @@
 package common
 
 import (
+	"bufio"
 	"os"
 	"os/exec"
 	"strings"
 	"bytes"
+	"log"
 
 )
 
@@ -46,4 +48,20 @@ func CheckIfError(err error, context ...string) {
 		} 
 	}
 	os.Exit(1)
+}
+
+func AskConfirmation(message string) (int) {
+
+	Info(message)
+
+	reader := bufio.NewReader(os.Stdin)
+	confirmation, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal(err)
+		}
+	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
+	if confirmation == "y" || confirmation == "yes" {
+		return 1
+	} 
+	return 0
 }
