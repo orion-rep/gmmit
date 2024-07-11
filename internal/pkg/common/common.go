@@ -62,6 +62,8 @@ func AskConfirmation(message string) (int) {
 	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
 	if confirmation == "y" || confirmation == "yes" {
 		return 1
-	} 
+	} else if confirmation == "r" {
+		return 2
+	}
 	return 0
 }
