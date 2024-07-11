@@ -44,6 +44,7 @@ i.e.:
 
 ## Troubleshooting
 
+### Message Blocked
 ```
 <date-time> blocked: candidate: FinishReasonSafety
 ```
