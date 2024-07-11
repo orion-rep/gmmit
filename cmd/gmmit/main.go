@@ -8,5 +8,5 @@ func main() {
 
 	LoadEnvironment()
 
-	GenerateCommitMessage()
+	RunCommitGeneration()
 }
