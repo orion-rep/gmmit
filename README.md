@@ -15,11 +15,12 @@ Run the `gmmit` command on a folder with a git repository, and it will check you
 ### Dependencies
 
 | Dependency | Version |
+| ---------- | ------- |
 | Golagn     | 1.22.*  |
 
 ### Build
 
-1. You need to have Golang installed, or use a docker container with Go.
+1. You need to have Golang installed, or use a docker container with it.
 
 ```bash
 docker run --rm --name gmmit-dev -v $(pwd):/go -it golang:1.22-alpine sh
@@ -31,13 +32,19 @@ docker run --rm --name gmmit-dev -v $(pwd):/go -it golang:1.22-alpine sh
 apk add --update git
 ```
 
-3. Finally, run the build command
+3. Run you code:
+
+```bash
+go run ./cmd/gmmit/
+```
+
+4. Optionally, run the build command
 
 ```bash
 go build -o build/gmmit ./cmd/gmmit/
 ```
 
-If working on MacOS, you may need to build the arm version in order to test it on you local.
+**NOTE**: If working on MacOS, you may need to build the arm version in order to test it on you local.
 
 ```bash
 env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
@@ -57,7 +64,7 @@ echo GMMIT_API_KEY="<API_KEY>" > ~/.gmenv
 
 3. Download the binary for you OS from the release section, and install it with your apps.
 
-If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
+    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
 
 4. Now move to a folder with a git repository, add some files to the staging area, and run the command.
 
@@ -67,7 +74,7 @@ gmmit
 
 4. Profit.
 
-### Usage
+## Usage
 
 | option | description |
 | ------ | ----------- |
@@ -106,6 +113,7 @@ This can occur when making many requests to an API in a short period of time.
 
 Contributors are more than welcome! Here's how you can propose and submit changes to the project.
 
+(These steps are based on [First Contributions](https://github.com/firstcontributions/first-contributions/blob/main/README.md) documents.)
 
 ### Fork this repository
 
@@ -219,8 +227,7 @@ Soon I'll be merging all your changes into the main branch of this project. You 
 
 ### Where to go from here?
 
-Congrats! You just completed the standard _fork -> clone -> edit -> pull request_ workflow that you'll often encounter as a contributor!
-
+Congrats! You just completed the standard _fork -> clone -> edit -> pull request_ workflow!
 
 ### Repository Internal Structure 
 
