@@ -18,7 +18,6 @@ func RunPRGeneration() {
     GeneratePRMessage()
 }
 
-
 func GetPRContext()(string, string) {
 	
 	defaultBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "origin/HEAD")), "\n", "")
@@ -38,12 +37,11 @@ func GetPRContext()(string, string) {
     
 }
 
-
 func GeneratePRMessage() {
 
 	Info("Generating PR message")
 
-	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the changes to be merged:\n%s",
+	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the changes to be merged:\n%s",
 		gitPRBranch, gitPRDiff)
 	
 	Debug(prPrompt)
