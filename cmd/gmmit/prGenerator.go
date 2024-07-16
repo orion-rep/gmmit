@@ -7,6 +7,7 @@ import (
 	
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"github.com/atotto/clipboard"
 )
 
 var prPrompt, gitPRDiff, gitPRBranch string = "","",""
@@ -50,8 +51,11 @@ func GeneratePRMessage() {
 
 	PrintModelResponse(res)
 
-	switch option := AskConfirmation("Do you want to re-generate the PR Message? [y/N]"); option {
+	switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
 		case 1:
+			clipboard.WriteAll(ModelResponseToString(res))
+			Info("PR Message copied! You're good to go.")
+		case 2:
 			GeneratePRMessage()
 		default:
 			os.Exit(0)

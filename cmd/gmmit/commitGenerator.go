@@ -33,6 +33,7 @@ func GenerateCommitMessage() {
 	switch option := AskConfirmation("Create a commit with this message? [y/N/r]"); option {
 		case 1:
 			CreateCommit(ModelResponseToString(res))
+			Info("Commit created, remember to run 'git push'.")
 		case 2:
 			GenerateCommitMessage()
 		default:
