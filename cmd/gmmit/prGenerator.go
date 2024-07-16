@@ -7,6 +7,7 @@ import (
 	
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"github.com/atotto/clipboard"
 )
 
 var prPrompt, gitPRDiff, gitPRBranch string = "","",""
@@ -16,7 +17,6 @@ func RunPRGeneration() {
 	gitPRDiff, gitPRBranch = GetPRContext()
     GeneratePRMessage()
 }
-
 
 func GetPRContext()(string, string) {
 	
@@ -37,12 +37,11 @@ func GetPRContext()(string, string) {
     
 }
 
-
 func GeneratePRMessage() {
 
 	Info("Generating PR message")
 
-	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the changes to be merged:\n%s",
+	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the changes to be merged:\n%s",
 		gitPRBranch, gitPRDiff)
 	
 	Debug(prPrompt)
@@ -50,8 +49,11 @@ func GeneratePRMessage() {
 
 	PrintModelResponse(res)
 
-	switch option := AskConfirmation("Do you want to re-generate the PR Message? [y/N]"); option {
+	switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
 		case 1:
+			clipboard.WriteAll(ModelResponseToString(res))
+			Info("PR Message copied! You're good to go.")
+		case 2:
 			GeneratePRMessage()
 		default:
 			os.Exit(0)
