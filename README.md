@@ -35,6 +35,7 @@ apk add --update git
 3. Run you code:
 
 ```bash
+echo GMMIT_API_KEY="<API_KEY>" > ~/.gmenv
 go run ./cmd/gmmit/
 ```
 
@@ -108,6 +109,23 @@ This error happen when the AI Model detects the content being sent is potenciall
 Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API. 
 
 This can occur when making many requests to an API in a short period of time.
+
+### Pull Request fail - ambiguous argument
+
+```
+fatal: ambiguous argument 'remotes/origin/HEAD': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+```
+
+This is usually due to having `origin/HEAD` missing on your local repo. This ref is generated during clone, if you don't have it, run the following command to make Git set it for you:
+
+```bash
+git remote set-head origin --auto
+```
+
+Run gmmit again.
+
 
 ## Contributing
 
