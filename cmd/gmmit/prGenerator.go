@@ -6,14 +6,14 @@ import (
 	"strings"
 	
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
-	//. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
 )
 
 var prPrompt, gitPRDiff, gitPRBranch string = "","",""
 
 func RunPRGeneration() {
 	Info("Getting context information")
-	gitDiff, gitBranch = GetPRContext()
+	gitPRDiff, gitPRBranch = GetPRContext()
     GeneratePRMessage()
 }
 
@@ -46,12 +46,13 @@ func GeneratePRMessage() {
 		gitPRBranch, gitPRDiff)
 	
 	Debug(prPrompt)
-	//res := RunPRPrompt(prPrompt)
+	res := RunPrompt(prPrompt)
 
-	//PrintModelResponse(res)
+	PrintModelResponse(res)
 
-	switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
-		
+	switch option := AskConfirmation("Do you want to re-generate the PR Message? [y/N]"); option {
+		case 1:
+			GeneratePRMessage()
 		default:
 			os.Exit(0)
 	}
