@@ -52,7 +52,7 @@ func CheckIfError(err error, context ...string) {
 
 func AskConfirmation(message string) (int) {
 
-	Info(message)
+	Question(message)
 
 	reader := bufio.NewReader(os.Stdin)
 	confirmation, err := reader.ReadString('\n')
