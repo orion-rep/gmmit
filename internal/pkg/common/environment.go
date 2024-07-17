@@ -10,7 +10,7 @@ import (
 var localEnv map[string]string
 
 func GetEnvArg(name string, defaultValue ...string) (string) {
-	value string
+	var value = ""
 	if val, ok := localEnv[name]; ok {
 		value = val
 	} else if envVal, exists := os.LookupEnv(name); exists {
@@ -24,18 +24,16 @@ func GetEnvArg(name string, defaultValue ...string) (string) {
 	return value
 }
 
-func LoadEnvironment()( map[string]string) {
+func LoadEnvironment()() {
 	Debug("Checking environment packages and tools")
 	CommandExists("git")
 	Debug("Loading environment variables from ~/.gmenv file")
 
-	var localEnv map[string]string
-	localEnv, err := godotenv.Read()
-
-	err := godotenv.Load(string(os.Getenv("HOME")) + "/.gmenv")
+	env, err := godotenv.Read(string(os.Getenv("HOME")) + "/.gmenv")
 	if err != nil {
 		Error("Error loading ~/.gmenv file")
 		os.Exit(1)
 	}
 
+	localEnv = env
 }
