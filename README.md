@@ -110,6 +110,18 @@ Error 429 generally indicates that you have exceeded the limit of allowed reques
 
 This can occur when making many requests to an API in a short period of time.
 
+### Error 500 - Unknown Cause
+
+```
+<date-time> googleapi: Error 500:
+```
+
+Error 500 is a generic http code for a 'error' message, we have no explanation why google API responds with that sometime, it can be any reason they want to send an error message.
+
+An educated guess would be they are just receiving too many generation requests and send an error message because the api key being use to call the generation is a free one.
+
+Usually the next time you run the command it works just fine.
+
 ### Pull Request fail - ambiguous argument
 
 ```
