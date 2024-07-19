@@ -71,8 +71,10 @@ func confirmPRCreation(title, description, repoProvider string) {
 		case 1:
 			prURL := ""
 			switch repoProvider {
-				case "Bitbucket":
-					prURL = createPRBitbucket(title, description, gitPRBranch, repositoryName)
+				case GIT_PROVIDER_BITBUCKET:
+					prURL = createPROnBitbucket(title, description, gitPRBranch, repositoryName)
+				case GIT_PROVIDER_GITHUB:
+					prURL = createPROnGithub(title, description, gitPRBranch, gitDefaultBranch, repositoryName)
 				default:
 					Error("Unexpected unknown repository provider: %s", repoProvider)
 					os.Exit(1)
@@ -99,7 +101,7 @@ func confirmCopyClipboard(description string) {
 }
 
 
-func createPRBitbucket(title string, message string, sourceBranch string, repo string) (string){
+func createPROnBitbucket(title string, message string, sourceBranch string, repo string) (string){
 	
 	url := "https://api.bitbucket.org/2.0/repositories/" + repo + "/pullrequests"
 	
@@ -128,6 +130,39 @@ func createPRBitbucket(title string, message string, sourceBranch string, repo s
 	}
 
 	newPRURL := fmt.Sprint(response["links"].(map[string]interface{})["html"].(map[string]interface{})["href"])
+	Info("PR URL: %s", newPRURL)
+
+	return newPRURL
+}
+
+func createPROnGithub(title string, message string, sourceBranch string, baseBranch string, repo string) (string){
+	
+	url := "https://api.github.com/repos/" + repo + "/pulls"
+	
+	payload := map[string]interface{}{
+		"title":title, 
+		"body": message,
+		"head": sourceBranch,
+		"base": baseBranch,
+	}
+	
+	resp, status, err := CallPost(url, payload ,GetEnvArg("GMMIT_GH_USER"), GetEnvArg("GMMIT_GH_PASS"))
+	CheckIfError(err)
+
+	response, err := ResponseJsonParser(resp)
+	CheckIfError(err)
+	Debug("Response: %s", response)
+
+	if status != 201 {
+		Error("PR creation failed with the following error message:")
+		Error(fmt.Sprint(response["message"]))
+		if _, ok := response["errors"]; ok {
+			Error(fmt.Sprint(response["errors"].([]interface{})[0].(map[string]interface{})["message"]))
+		}
+		os.Exit(1)
+	}
+
+	newPRURL := fmt.Sprint(response["html_url"])
 	Info("PR URL: %s", newPRURL)
 
 	return newPRURL

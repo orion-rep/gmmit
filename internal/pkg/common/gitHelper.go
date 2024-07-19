@@ -6,6 +6,11 @@ import (
 	"errors"
 )
 
+const GIT_PROVIDER_GENERIC = "Generic"
+const GIT_PROVIDER_BITBUCKET = "Bitbucket"
+const GIT_PROVIDER_GITHUB = "Github"
+const GIT_PROVIDER_GITLAB = "Gitlab"
+
 func parseRepoName(repository string) (string, string, error) {
     repoGitName := strings.Split(repository, ":")
     if len(repoGitName) < 2 {
@@ -15,14 +20,13 @@ func parseRepoName(repository string) (string, string, error) {
 	repoName := strings.ReplaceAll(repoGitName[1], ".git", "")
     Debug("Repository name: %s", repoName)
 
-    repoProvider := "Generic"
+    repoProvider := GIT_PROVIDER_GENERIC
     if strings.Contains(repoGitName[0], "bitbucket") {
-        repoProvider = "Bitbucket"
+        repoProvider = GIT_PROVIDER_BITBUCKET
     } else if strings.Contains(repoGitName[0], "github") {
-        // repoProvider = "Github" // Not supported yes
-        Debug("Github provider is not supported yes")
+        repoProvider = GIT_PROVIDER_GITHUB
     } else if strings.Contains(repoGitName[0], "gitlab") {
-        // repoProvider = "Gitlab" // Not supported yet
+        // repoProvider = GIT_PROVIDER_GITLAB // Not supported yet
         Debug("Gitlab provider is not supported yet")
     }
     Debug("Repository provider: %s", repoProvider)
@@ -32,6 +36,7 @@ func parseRepoName(repository string) (string, string, error) {
 
 func GetDefaultBranch() (string){
     defaultBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "origin/HEAD")), "\n", "")
+    defaultBranch = strings.ReplaceAll(defaultBranch, "origin/", "")
 	Debug("Default branch: %s", defaultBranch)
     return defaultBranch
 }
