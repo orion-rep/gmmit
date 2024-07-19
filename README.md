@@ -12,11 +12,62 @@ Run the `gmmit` command on a folder with a git repository, and it will check you
 
 ## Getting started
 
+### Usage
+
+#### Options
+
+| option | description |
+| ------ | ----------- |
+| --no-verify | Add the option to skip git hooks and commit even if the pre-commit hooks fail. This is helpful when you are sure that your changes are correct and you don't want to wait for the hooks to run. |
+| --pr | It creates a Pull Request title and description based on the changes between the current and default branch. If the git provider is supported offers the option to create the PR. |
+
+#### Generate Commit Message
+
+Gmmit will check your current staged file changes and use an LLM to generate a commit message. It'll give you the chance to re-generate it if you don't like it, or to create the commit on you local repo running `git commit -m <msg>` for you.
+
+Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
+
+1. Get a Gemini API Key. You'll need a Google Account (Gmail) to do this, then follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key).
+
+2. Download the binary for you OS from the release section, and install it with your apps.
+
+    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
+
+3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
+
+```bash
+gmmit
+```
+
+4. Profit.
+
+#### Generate Pull Request Title and Description
+
+Gmmit will check the changes between the current branch and default one and use an LLM to generate a pull request title and description. It'll give you the chance to re-generate it if you don't like it, or to create the pull request if the git provider is supported.
+
+Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
+
+1. Get a Gemini API Key. You'll need a Google Account (Gmail) to do this, then follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key).
+
+2. Download the binary for you OS from the release section, and install it with your apps.
+
+    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
+
+3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
+
+```bash
+gmmit --pr
+```
+
+**NOTE**: In order to be able to create the PRs on the cloud git provider, gmmit will ask for your credentials. You'll need to provider an [access token](docs/git-tokens.md).
+
+4. Profit.
+
 ### Dependencies
 
 | Dependency | Version |
 | ---------- | ------- |
-| Golagn     | 1.22.*  |
+| Golang     | 1.22.*  |
 
 ### Build
 
@@ -35,9 +86,10 @@ apk add --update git
 3. Run you code:
 
 ```bash
-echo GMMIT_API_KEY="<API_KEY>" > ~/.gmenv
 go run ./cmd/gmmit/
 ```
+
+NOTE: You will be asked to provide a Gamini API Key, follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key) to create it.
 
 4. Optionally, run the build command
 
@@ -50,36 +102,6 @@ go build -o build/gmmit ./cmd/gmmit/
 ```bash
 env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
 ```
-
-### Run
-
-Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
-
-1. Get a Gemini API Key. You'll need a Google Account (Gmail) to do this, then follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key).
-
-2. Setup your env:
-
-```bash
-echo GMMIT_API_KEY="<API_KEY>" > ~/.gmenv
-```
-
-3. Download the binary for you OS from the release section, and install it with your apps.
-
-    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
-
-4. Now move to a folder with a git repository, add some files to the staging area, and run the command.
-
-```bash
-gmmit
-```
-
-4. Profit.
-
-## Usage
-
-| option | description |
-| ------ | ----------- |
-| --no-verify | Add the option to skip git hooks and commit even if the pre-commit hooks fail. This is helpful when you are sure that your changes are correct and you don't want to wait for the hooks to run. |
 
 ## Troubleshooting
 
