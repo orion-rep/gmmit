@@ -42,7 +42,7 @@ func CallPost(url string, payload interface{}, user string, pass string) ([]byte
 	return body, resp.StatusCode, nil
 }
 
-func ResponseParser(resp []byte) (map[string]any, error) {
+func ResponseJsonParser(resp []byte) (map[string]any, error) {
 	var result map[string]any
 	err := json.Unmarshal(resp, &result)
 	if err != nil {

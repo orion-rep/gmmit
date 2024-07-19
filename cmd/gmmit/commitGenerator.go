@@ -31,8 +31,8 @@ func GenerateCommitMessage() {
 	Debug(prompt)
 	res := RunPrompt(prompt)
 
-	Info("Generated Text:")
-	Info("---")
+	Info("Text Generated")
+	Info("Commit Message:")
 	PrintModelResponse(res)
 	Info("---")
 

@@ -109,7 +109,7 @@ func createPRBitbucket(title string, sourceBranch string, message string, repo s
 	resp, status, err := CallPost(url, payload ,GetEnvArg("GMMIT_BB_USER"), GetEnvArg("GMMIT_BB_PASS"))
 	CheckIfError(err)
 
-	response, err := ResponseParser(resp)
+	response, err := ResponseJsonParser(resp)
 	CheckIfError(err)
 	Debug("Response: %s", response)
 
