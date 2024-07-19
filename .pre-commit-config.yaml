@@ -24,4 +24,4 @@ repos:
     rev: v0.40.0
     hooks:
       - id: markdownlint
-        args: ["--fix"]
+        args: ["--fix", "--ignore", "LICENSE.md"]
