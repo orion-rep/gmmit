@@ -76,20 +76,19 @@ Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need
 | Dependency | Version |
 | ---------- | ------- |
 | Golang     | 1.22.*  |
+| golangci-lint | 1.59.* |
+| goimports | 0.23.* |
 
 ### Build
 
-1. You need to have Golang installed, or use a docker container with it.
+1. You need to have Golang installed, and a couple of other tools in order to run the pre-commit hooks
 
     ```bash
-    docker run --rm --name gmmit-dev -v $(pwd):/go -it golang:1.22-alpine sh
+    brew install go golangci-lint
+    go install golang.org/x/tools/cmd/goimports@latest
     ```
 
-2. To test it you'll need `git` as well. If you're using the docker container, install it with the following command:
-
-    ```bash
-    apk add --update git
-    ```
+2. To test it you'll need `git` as well.
 
 3. Run you code:
 
