@@ -66,7 +66,7 @@ func GetCommitContext() (string, string) {
 func CreateCommit(msg string) {
 	Info("Creating Commit")
 	gitOptions := []string{"commit"}
-	if *noVerifyFlag == true {
+	if *noVerifyFlag {
 		Debug("Adding '--no-verify' option to git commit")
 		gitOptions = append(gitOptions, "--no-verify")
 	}

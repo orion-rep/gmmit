@@ -67,5 +67,6 @@ func defineEnvArg(name string) {
 	newEnvArg = strings.TrimSpace(newEnvArg)
 	localEnv[name] = newEnvArg
 	Debug("Saving %s value", name)
-	godotenv.Write(localEnv, envFile)
+	err = godotenv.Write(localEnv, envFile)
+	CheckIfError(err)
 }

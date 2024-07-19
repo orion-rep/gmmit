@@ -80,7 +80,8 @@ func confirmPRCreation(title, description, repoProvider string) {
 			os.Exit(1)
 		}
 		Info("PR created! You're good to go")
-		OpenURL(prURL)
+		err := OpenURL(prURL)
+		CheckIfError(err)
 	case 2:
 		generatePRMessage()
 	default:
@@ -91,7 +92,8 @@ func confirmPRCreation(title, description, repoProvider string) {
 func confirmCopyClipboard(description string) {
 	switch option := AskConfirmation("Copy this PR Description to your clipboard(y)? or Regenerate the text(r)? [y/N/r]"); option {
 	case 1:
-		clipboard.WriteAll(description)
+		err := clipboard.WriteAll(description)
+		CheckIfError(err)
 		Info("PR description copied! You're good to go")
 	case 2:
 		generatePRMessage()

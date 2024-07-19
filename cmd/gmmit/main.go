@@ -15,7 +15,7 @@ func main() {
 	flag.Parse()
 	LoadEnvironment()
 
-	if *generatePR == true {
+	if *generatePR {
 		RunPRGeneration()
 	} else {
 		RunCommitGeneration()
