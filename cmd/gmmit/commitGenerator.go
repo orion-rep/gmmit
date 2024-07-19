@@ -31,7 +31,10 @@ func GenerateCommitMessage() {
 	Debug(prompt)
 	res := RunPrompt(prompt)
 
+	Info("Generated Text:")
+	Info("---")
 	PrintModelResponse(res)
+	Info("---")
 
 	switch option := AskConfirmation("Create a commit with this message? [y/N/r]"); option {
 		case 1:
@@ -61,7 +64,7 @@ func GetCommitContext()(string, string) {
 }
 
 func CreateCommit(msg string) {
-	Info("Creating Commit...")
+	Info("Creating Commit")
 	gitOptions := [] string { "commit" }
 	if *noVerifyFlag == true {
 		Debug("Adding '--no-verify' option to git commit")

@@ -11,17 +11,24 @@ import (
 	"github.com/atotto/clipboard"
 )
 
-var prPrompt, gitPRDiff, gitPRBranch string = "","",""
+var prPrompt, gitPRDiff, gitPRBranch, repoName string = "","","",""
 
 func RunPRGeneration() {
 	Info("Getting context information")
-	gitPRDiff, gitPRBranch = GetPRContext()
-    GeneratePRMessage()
+	getPRContext()
+    generatePRMessage()
 }
 
-func GetPRContext()(string, string) {
+func getPRContext() {
 	
 	defaultBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "origin/HEAD")), "\n", "")
+	Debug("Default branch: %s", defaultBranch)
+	remoteRepository := strings.ReplaceAll(string(RunCommand("git", "config", "--get", "remote.origin.url")), "\n", "")
+	repositoryName, err := GetRepoRawName(remoteRepository)
+	repoName = repositoryName
+	CheckIfError(err)
+
+	Debug("Repository name: %s", repositoryName)
 
 	Debug("Checking changes against branch '%s'", defaultBranch)
 	diff := string(RunCommand("git","diff",fmt.Sprintf("%s...", defaultBranch)))
@@ -32,13 +39,15 @@ func GetPRContext()(string, string) {
 		os.Exit(0)
 	}
 	
-	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
+	gitPRDiff = diff
 
-	return diff, branch
-    
+	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
+	Debug("Current branch: %s", branch)
+
+	gitPRBranch = branch
 }
 
-func GeneratePRMessage() {
+func generatePRMessage() {
 
 	Info("Generating PR message")
 
@@ -56,24 +65,34 @@ func GeneratePRMessage() {
 	prDescription := response["description"]
 	CheckIfError(err)
 
+	Info("Text Generated")
 	Info("PR Title:")
 	fmt.Println(prTitle)
 	Info("PR Description:")
 	fmt.Println(prDescription)
+	Info("---")
 
-	switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
+	switch option := AskConfirmation("Do you want to create the PR? [y/N/r]"); option {
 		case 1:
-			clipboard.WriteAll(ModelResponseToString(res))
-			Info("PR Message copied! You're good to go.")
-			createPRBitbucket(prTitle,gitPRBranch, prDescription, "flashtalking/ft-dns")
+			prURL := createPRBitbucket(prTitle,gitPRBranch, prDescription, repoName)
+			Info("PR created! You're good to go")
+			OpenURL(prURL)
 		case 2:
-			GeneratePRMessage()
+			generatePRMessage()
 		default:
-			os.Exit(0)
+			switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
+				case 1:
+					clipboard.WriteAll(ModelResponseToString(res))
+					Info("PR Message copied! You're good to go")
+				case 2:
+					generatePRMessage()
+				default:
+					os.Exit(0)
+			}
 	}
 }
 
-func createPRBitbucket(title string, sourceBranch string, message string, repo string) {
+func createPRBitbucket(title string, sourceBranch string, message string, repo string) (string){
 	
 	url := "https://api.bitbucket.org/2.0/repositories/" + repo + "/pullrequests"
 	
@@ -104,5 +123,5 @@ func createPRBitbucket(title string, sourceBranch string, message string, repo s
 	newPRURL := fmt.Sprint(response["links"].(map[string]interface{})["html"].(map[string]interface{})["href"])
 	Info("PR URL: %s", newPRURL)
 
-	OpenURL(newPRURL)
+	return newPRURL
 }

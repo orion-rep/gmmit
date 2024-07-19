@@ -98,8 +98,6 @@ func ModelResponseToString(resp *genai.GenerateContentResponse)(string){
 }
 
 func PrintModelResponse(resp *genai.GenerateContentResponse) {
-	Info("Generated Text:")
-	Info("---")
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
 			for _, part := range cand.Content.Parts {
@@ -107,5 +105,4 @@ func PrintModelResponse(resp *genai.GenerateContentResponse) {
 			}
 		}
 	}
-	Info("---")
 }
