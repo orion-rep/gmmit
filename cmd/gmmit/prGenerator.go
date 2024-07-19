@@ -155,12 +155,14 @@ func createPROnGithub(title string, message string, sourceBranch string, baseBra
 
 	if status != 201 {
 		Error("PR creation failed with the following error message:")
-		errorResp := response["error"].(map[string]interface{})
-		Error(fmt.Sprint(errorResp["message"]))
+		Error(fmt.Sprint(response["message"]))
+		if _, ok := response["errors"]; ok {
+			Error(fmt.Sprint(response["errors"].([]interface{})[0].(map[string]interface{})["message"]))
+		}
 		os.Exit(1)
 	}
 
-	newPRURL := fmt.Sprint(response["links"].(map[string]interface{})["html"].(map[string]interface{})["href"])
+	newPRURL := fmt.Sprint(response["url"])
 	Info("PR URL: %s", newPRURL)
 
 	return newPRURL

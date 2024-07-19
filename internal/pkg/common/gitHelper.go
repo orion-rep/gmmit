@@ -36,6 +36,7 @@ func parseRepoName(repository string) (string, string, error) {
 
 func GetDefaultBranch() (string){
     defaultBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "origin/HEAD")), "\n", "")
+    defaultBranch = strings.ReplaceAll(defaultBranch, "origin/", "")
 	Debug("Default branch: %s", defaultBranch)
     return defaultBranch
 }

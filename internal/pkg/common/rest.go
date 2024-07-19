@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"fmt"
 )
 
 
@@ -19,13 +20,16 @@ func CallPost(url string, payload interface{}, user string, pass string) ([]byte
 	jsonValue, _ := json.Marshal(payload)
 	Debug("HTTP JSON payload:%s", jsonValue)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
-    req.Header.Set("Accept", "application/json")
+    //req.Header.Set("Accept", "application/vnd.github+json")
+    //req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(user, pass)
+    req.SetBasicAuth(user, pass)
+	fmt.Println(req)
 
 	Debug("Sending POST request to: %s", req.URL.String())
 	client := &http.Client{}
 	resp, err := client.Do(req)
+
 	if err != nil {
 		Error(err.Error())
 		return nil, 500, err
