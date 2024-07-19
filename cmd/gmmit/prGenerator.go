@@ -4,14 +4,13 @@ import (
 	"os"
 	"fmt"
 	"encoding/json"
-	"strings"
 	
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
 	"github.com/atotto/clipboard"
 )
 
-var prPrompt, gitPRDiff, gitPRBranch, repoName string = "","","",""
+var prPrompt, gitPRDiff, gitDefaultBranch, gitPRBranch, repositoryName string = "","","","",""
 
 func RunPRGeneration() {
 	Info("Getting context information")
@@ -21,30 +20,16 @@ func RunPRGeneration() {
 
 func getPRContext() {
 	
-	defaultBranch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "origin/HEAD")), "\n", "")
-	Debug("Default branch: %s", defaultBranch)
-	remoteRepository := strings.ReplaceAll(string(RunCommand("git", "config", "--get", "remote.origin.url")), "\n", "")
-	repositoryName, err := GetRepoRawName(remoteRepository)
-	repoName = repositoryName
-	CheckIfError(err)
-
-	Debug("Repository name: %s", repositoryName)
-
-	Debug("Checking changes against branch '%s'", defaultBranch)
-	diff := string(RunCommand("git","diff",fmt.Sprintf("%s...", defaultBranch)))
-
-	if len(diff) <= 0 {
+	repositoryName = GetRepositoryName()
+	gitDefaultBranch = GetDefaultBranch()
+	gitPRBranch = GetCurrentBranch()
+	gitPRDiff = CalculateDiffBetweenBranches(gitDefaultBranch, gitPRBranch)
+	
+	if len(gitPRDiff) <= 0 {
 		Warning("Git diff returned no files")
 		Warning("Add some files to the staging area and run this command again")
 		os.Exit(0)
 	}
-	
-	gitPRDiff = diff
-
-	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
-	Debug("Current branch: %s", branch)
-
-	gitPRBranch = branch
 }
 
 func generatePRMessage() {
@@ -74,7 +59,7 @@ func generatePRMessage() {
 
 	switch option := AskConfirmation("Do you want to create the PR? [y/N/r]"); option {
 		case 1:
-			prURL := createPRBitbucket(prTitle,gitPRBranch, prDescription, repoName)
+			prURL := createPRBitbucket(prTitle,gitPRBranch, prDescription, repositoryName)
 			Info("PR created! You're good to go")
 			OpenURL(prURL)
 		case 2:
