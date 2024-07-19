@@ -10,7 +10,7 @@ import (
 	"github.com/atotto/clipboard"
 )
 
-var prPrompt, gitPRDiff, gitDefaultBranch, gitPRBranch, repositoryName string = "","","","",""
+var prPrompt, gitPRDiff, gitDefaultBranch, gitPRBranch, repositoryName, repositoryProvider string = "","","","","",""
 
 func RunPRGeneration() {
 	Info("Getting context information")
@@ -20,7 +20,7 @@ func RunPRGeneration() {
 
 func getPRContext() {
 	
-	repositoryName = GetRepositoryName()
+	repositoryName, repositoryProvider = GetRepositoryData()
 	gitDefaultBranch = GetDefaultBranch()
 	gitPRBranch = GetCurrentBranch()
 	gitPRDiff = CalculateDiffBetweenBranches(gitDefaultBranch, gitPRBranch)
@@ -57,27 +57,49 @@ func generatePRMessage() {
 	fmt.Println(prDescription)
 	Info("---")
 
-	switch option := AskConfirmation("Do you want to create the PR? [y/N/r]"); option {
+	if repositoryProvider == "Generic" {
+		Debug("Repository provider not supported, PR creation dissabled")
+		confirmCopyClipboard(prDescription)
+		return
+	}
+	
+	confirmPRCreation(prTitle, prDescription, repositoryProvider)
+}
+
+func confirmPRCreation(title, description, repoProvider string) {
+	switch option := AskConfirmation("Do you want to create the PR(y)? or Regenerate the text(r)? [y/N/r]"); option {
 		case 1:
-			prURL := createPRBitbucket(prTitle,gitPRBranch, prDescription, repositoryName)
+			prURL := ""
+			switch repoProvider {
+				case "Bitbucket":
+					prURL = createPRBitbucket(title, description, gitPRBranch, repositoryName)
+				default:
+					Error("Unexpected unknown repository provider: %s", repoProvider)
+					os.Exit(1)
+			}
 			Info("PR created! You're good to go")
 			OpenURL(prURL)
 		case 2:
 			generatePRMessage()
 		default:
-			switch option := AskConfirmation("Copy this PR Message to your clipboard? [y/N/r]"); option {
-				case 1:
-					clipboard.WriteAll(ModelResponseToString(res))
-					Info("PR Message copied! You're good to go")
-				case 2:
-					generatePRMessage()
-				default:
-					os.Exit(0)
-			}
+			confirmCopyClipboard(description)
 	}
 }
 
-func createPRBitbucket(title string, sourceBranch string, message string, repo string) (string){
+func confirmCopyClipboard(description string) {
+	switch option := AskConfirmation("Copy this PR Description to your clipboard(y)? or Regenerate the text(r)? [y/N/r]"); option {
+		case 1:
+			clipboard.WriteAll(description)
+			Info("PR description copied! You're good to go")
+		case 2:
+			generatePRMessage()
+		default:
+			os.Exit(0)
+	}
+}
+
+
+func createPRBitbucket(title string, message string, sourceBranch string, repo string) (string){
 	
 	url := "https://api.bitbucket.org/2.0/repositories/" + repo + "/pullrequests"
 	

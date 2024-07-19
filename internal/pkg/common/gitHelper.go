@@ -6,15 +6,28 @@ import (
 	"errors"
 )
 
-// getRepoRawName returns the raw name of a repository from its full name
-func getRepoRawName(repository string) (string, error) {
+func parseRepoName(repository string) (string, string, error) {
     repoGitName := strings.Split(repository, ":")
     if len(repoGitName) < 2 {
-        return "", errors.New("Invalid repository name. " + repository + " could not be parsed properly")
+        return "", "", errors.New("Invalid repository name. " + repository + " could not be parsed properly")
     }
 	// Removing '.git' from name
 	repoName := strings.ReplaceAll(repoGitName[1], ".git", "")
-    return repoName, nil
+    Debug("Repository name: %s", repoName)
+
+    repoProvider := "Generic"
+    if strings.Contains(repoGitName[0], "bitbucket") {
+        repoProvider = "Bitbucket"
+    } else if strings.Contains(repoGitName[0], "github") {
+        // repoProvider = "Github" // Not supported yes
+        Debug("Github provider is not supported yes")
+    } else if strings.Contains(repoGitName[0], "gitlab") {
+        // repoProvider = "Gitlab" // Not supported yet
+        Debug("Gitlab provider is not supported yet")
+    }
+    Debug("Repository provider: %s", repoProvider)
+
+    return repoName, repoProvider, nil
 }
 
 func GetDefaultBranch() (string){
@@ -29,12 +42,11 @@ func GetCurrentBranch() (string){
     return currentBranch
 }
 
-func GetRepositoryName() (string){
+func GetRepositoryData() (string, string){
     remoteRepository := strings.ReplaceAll(string(RunCommand("git", "config", "--get", "remote.origin.url")), "\n", "")
-	repositoryName, err := getRepoRawName(remoteRepository)
+	repositoryName, repositoryProvider, err := parseRepoName(remoteRepository)
     CheckIfError(err)
-	Debug("Repository name: %s", repositoryName)
-    return repositoryName
+	return repositoryName, repositoryProvider
 }
 
 func CalculateDiffBetweenBranches(branch1, branch2 string) (string){
