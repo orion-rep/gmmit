@@ -80,6 +80,7 @@ gmmit
 | option | description |
 | ------ | ----------- |
 | --no-verify | Add the option to skip git hooks and commit even if the pre-commit hooks fail. This is helpful when you are sure that your changes are correct and you don't want to wait for the hooks to run. |
+| --pr | It creats a Pull Request title and description instead.|
 
 ## Troubleshooting
 
