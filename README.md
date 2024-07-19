@@ -63,6 +63,10 @@ gmmit --pr
 
 4. Profit.
 
+![gmmit pull request example](images/pull-request.gif)
+
+**DISCLAIMER**: The steps from the "How to test?" section might by wrong sometimes, make sure you review all the sections before sending the PR to codereview.
+
 ### Dependencies
 
 | Dependency | Version |
