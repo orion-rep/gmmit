@@ -6,26 +6,40 @@ import (
 	"os/exec"
 	"strings"
 	"bytes"
-	"log"
-
+	"runtime"
 )
 
+// RunCommand executes a command-line command with the provided parameters
+// and returns the output of the command as a string.
 func RunCommand(command string, params ...string) (string) {
-	Debug("Running command: \"%s\", with params: %s",command, params)
-	cmd := exec.Command(command, params...)
-	
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	
-	err := cmd.Run()
-	Debug("Command output: %s", out.String())
+    // Log the command and parameters being executed
+    Debug("Running command: \"%s\", with params: %s", command, params)
+
+    // Create a new command object with the provided command and parameters
+    cmd := exec.Command(command, params...)
+
+    // Create buffers to store the standard output and standard error
+    var out bytes.Buffer
+    var stderr bytes.Buffer
+
+    // Assign the buffers to the command's output and error streams
+    cmd.Stdout = &out
+    cmd.Stderr = &stderr
+
+    // Execute the command
+    err := cmd.Run()
+
+    // Log the command output
+    Debug("Command output: %s", out.String())
+
+    // Check if an error occurred during the command execution
+    // and handle it accordingly
     CheckIfError(err, stderr.String())
-	
-	return out.String()
+
+    // Return the command output as a string
+    return out.String()
 }
+
 
 // CheckArgs should be used to ensure the right command line arguments are
 // passed before executing an example.
@@ -54,18 +68,18 @@ func AskConfirmation(message string) (int) {
 
 	Question(message)
 
-	reader := bufio.NewReader(os.Stdin)
-	confirmation, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-	confirmation = strings.ToLower(strings.TrimSpace(confirmation))
-	if confirmation == "y" || confirmation == "yes" {
-		return 1
-	} else if confirmation == "r" {
-		return 2
-	}
-	return 0
+    scanner := bufio.NewScanner(os.Stdin)
+    scanner.Scan()
+    input := strings.ToLower(strings.TrimSpace(scanner.Text()))
+
+    switch input {
+    case "y", "yes":
+        return 1 //Confirmed
+    case "r":
+        return 2 //Retry
+    default:
+        return 0 //Canceled
+    }
 }
 
 func CommandExists(cmd string) {
@@ -75,4 +89,23 @@ func CommandExists(cmd string) {
 		Warning("%s could not be found. Install it and run this command again.", cmd)
 	} 
 	CheckIfError(err)
+}
+
+// https://stackoverflow.com/questions/39320371/how-start-web-server-to-open-page-in-browser-in-golang
+// open opens the specified URL in the default browser of the user.
+func OpenURL(url string) error {
+    var cmd string
+    var args []string
+
+    switch runtime.GOOS {
+    case "windows":
+        cmd = "cmd"
+        args = []string{"/c", "start"}
+    case "darwin":
+        cmd = "open"
+    default: // "linux", "freebsd", "openbsd", "netbsd"
+        cmd = "xdg-open"
+    }
+    args = append(args, url)
+    return exec.Command(cmd, args...).Start()
 }
