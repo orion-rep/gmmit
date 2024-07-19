@@ -3,10 +3,9 @@ package common
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
-
 
 /*
 / The callPost function makes a REST API POST call.
@@ -19,21 +18,22 @@ func CallPost(url string, payload interface{}, user string, pass string) ([]byte
 	jsonValue, _ := json.Marshal(payload)
 	Debug("HTTP JSON payload:%s", jsonValue)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
-    req.Header.Set("Content-Type", "application/json")
-    req.SetBasicAuth(user, pass)
-	
+	CheckIfError(err)
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(user, pass)
+
 	Debug("Sending POST request to: %s", req.URL.String())
 	client := &http.Client{}
 	resp, err := client.Do(req)
-
 	if err != nil {
 		Error(err.Error())
 		return nil, 500, err
 	}
 	defer resp.Body.Close()
 
-	Debug("HTTP Status:", resp.Status)
-	body, err := ioutil.ReadAll(resp.Body)
+	Debug("HTTP Status: %s", resp.Status)
+	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		Error(err.Error())
 		return nil, resp.StatusCode, err

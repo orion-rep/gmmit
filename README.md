@@ -4,9 +4,11 @@ This a small terminal tool to help developers or any person interacting with Git
 
 ---
 
-You'd certainly agree that inspecting a properly maintained git history log that follows the [Conventional Commits](https://www.conventionalcommits.org) standard is nice and simple. And you'd also agree that having to dedicate time to come up with those neat and descriptive messages is a bummer. Well, here's where **gmmit** comes to saves the day.
+You'd certainly agree that inspecting a properly maintained git history log that follows the [Conventional Commits](https://www.conventionalcommits.org) standard is nice and simple.
+And you'd also agree that having to dedicate time to come up with those neat and descriptive messages is a bummer. Well, here's where **gmmit** comes to saves the day.
 
-Run the `gmmit` command on a folder with a git repository, and it will check your staged changes, the current branch name, and generate a tidy commit message for you, and even run the "git commit" command. After that, just execute `git push`, and it's done.
+Run the `gmmit` command on a folder with a git repository, and it will check your staged changes, the current branch name, and generate a tidy commit message for you, and even run "git commit".
+After that, just execute `git push`, and it's done.
 
 ![gmmit command example](images/commit.gif)
 
@@ -23,7 +25,8 @@ Run the `gmmit` command on a folder with a git repository, and it will check you
 
 #### Generate Commit Message
 
-Gmmit will check your current staged file changes and use an LLM to generate a commit message. It'll give you the chance to re-generate it if you don't like it, or to create the commit on you local repo running `git commit -m <msg>` for you.
+Gmmit will check your current staged file changes and use an LLM to generate a commit message.
+It'll give you the chance to re-generate it if you don't like it, or to create the commit on you local repo running `git commit -m <msg>` for you.
 
 Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
 
@@ -35,15 +38,16 @@ Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need
 
 3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
 
-```bash
-gmmit
-```
+    ```bash
+    gmmit
+    ```
 
 4. Profit.
 
 #### Generate Pull Request Title and Description
 
-Gmmit will check the changes between the current branch and default one and use an LLM to generate a pull request title and description. It'll give you the chance to re-generate it if you don't like it, or to create the pull request if the git provider is supported.
+Gmmit will check the changes between the current branch and default one and use an LLM to generate a pull request title and description.
+It'll give you the chance to re-generate it if you don't like it, or to create the pull request if the git provider is supported.
 
 Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
 
@@ -55,11 +59,11 @@ Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need
 
 3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
 
-```bash
-gmmit --pr
-```
+    ```bash
+    gmmit --pr
+    ```
 
-**NOTE**: In order to be able to create the PRs on the cloud git provider, gmmit will ask for your credentials. You'll need to provider an [access token](docs/git-tokens.md).
+    **NOTE**: In order to be able to create the PRs on the cloud git provider, gmmit will ask for your credentials. You'll need to provider an [access token](docs/git-tokens.md).
 
 4. Profit.
 
@@ -72,40 +76,39 @@ gmmit --pr
 | Dependency | Version |
 | ---------- | ------- |
 | Golang     | 1.22.*  |
+| golangci-lint | 1.59.* |
+| goimports | 0.23.* |
 
 ### Build
 
-1. You need to have Golang installed, or use a docker container with it.
+1. You need to have Golang installed, and a couple of other tools in order to run the pre-commit hooks
 
-```bash
-docker run --rm --name gmmit-dev -v $(pwd):/go -it golang:1.22-alpine sh
-```
+    ```bash
+    brew install go golangci-lint
+    go install golang.org/x/tools/cmd/goimports@latest
+    ```
 
-2. To test it you'll need `git` as well. If you're using the docker container, install it with the following command:
-
-```bash
-apk add --update git
-```
+2. To test it you'll need `git` as well.
 
 3. Run you code:
 
-```bash
-go run ./cmd/gmmit/
-```
+    ```bash
+    go run ./cmd/gmmit/
+    ```
 
-NOTE: You will be asked to provide a Gamini API Key, follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key) to create it.
+    **NOTE**: You will be asked to provide a Gamini API Key, follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key) to create it.
 
 4. Optionally, run the build command
 
-```bash
-go build -o build/gmmit ./cmd/gmmit/
-```
+    ```bash
+    go build -o build/gmmit ./cmd/gmmit/
+    ```
 
-**NOTE**: If working on MacOS, you may need to build the arm version in order to test it on you local.
+    **NOTE**: If working on MacOS, you may need to build the arm version in order to test it on you local.
 
-```bash
-env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
-```
+    ```bash
+    env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
+    ```
 
 ## Troubleshooting
 
@@ -120,7 +123,8 @@ GMMIT_DEBUG=true gmmit
 ```
 
 ### FinishReasonSafety - Message Blocked
-```
+
+```txt
 <date-time> blocked: candidate: FinishReasonSafety
 ```
 
@@ -128,17 +132,17 @@ This error happen when the AI Model detects the content being sent is potenciall
 
 ### Error 429 - Quota Exceeded
 
-```
+```txt
 <date-time> googleapi: Error 429:
 ```
 
-Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API. 
+Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API.
 
 This can occur when making many requests to an API in a short period of time.
 
 ### Error 500 - Unknown Cause
 
-```
+```txt
 <date-time> googleapi: Error 500:
 ```
 
@@ -150,7 +154,7 @@ Usually the next time you run the command it works just fine.
 
 ### Pull Request fail - ambiguous argument
 
-```
+```txt
 fatal: ambiguous argument 'remotes/origin/HEAD': unknown revision or path not in the working tree.
 Use '--' to separate paths from revisions, like this:
 'git <command> [<revision>...] -- [<file>...]'
@@ -164,8 +168,8 @@ git remote set-head origin --auto
 
 Run gmmit again.
 
-
 ## Contributing
+<!-- markdownlint-disable MD033 -->
 
 Contributors are more than welcome! Here's how you can propose and submit changes to the project.
 
@@ -180,7 +184,7 @@ This will create a copy of this repository in your account.
 
 <img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/clone.png" alt="clone this repository" />
 
-Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the _copy to clipboard_ icon.
+Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the *copy to clipboard* icon.
 
 Open a terminal and run the following git command:
 
@@ -262,6 +266,7 @@ replacing `your-branch-name` with the name of the branch you created earlier.
 <summary> <strong>If you get any errors while pushing, click here:</strong> </summary>
 
 - ### Authentication Error
+
      <pre>remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
   remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
   fatal: Authentication failed for 'https://github.com/<your-username>/first-contributions.git/'</pre>
@@ -280,12 +285,12 @@ Now submit the pull request.
 <img style="float: right;" src="https://firstcontributions.github.io/assets/Readme/submit-pull-request.png" alt="submit pull request" />
 
 Soon I'll be merging all your changes into the main branch of this project. You will get a notification email once the changes have been merged.
-
+<!-- markdownlint-enable MD033 -->
 ### Where to go from here?
 
-Congrats! You just completed the standard _fork -> clone -> edit -> pull request_ workflow!
+Congrats! You just completed the standard *fork -> clone -> edit -> pull request* workflow!
 
-### Repository Internal Structure 
+### Repository Internal Structure
 
 This repository adopts the Golang Project structure as described by Golang-Standards [here](https://github.com/golang-standards/project-layout?tab=readme-ov-file#go-directories).
 

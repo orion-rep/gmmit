@@ -1,12 +1,12 @@
 package common
 
 import (
-	"os"
-	"fmt"
 	"bufio"
-	"strings"
-	"log"
 	"errors"
+	"fmt"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -15,7 +15,7 @@ var localEnv map[string]string
 
 var envFile = string(os.Getenv("HOME")) + "/.gmenv"
 
-func GetEnvArg(name string, defaultValue ...string) (string) {
+func GetEnvArg(name string, defaultValue ...string) string {
 	var value = ""
 	if val, ok := localEnv[name]; ok {
 		value = val
@@ -36,7 +36,7 @@ func GetEnvArg(name string, defaultValue ...string) (string) {
 	return value
 }
 
-func LoadEnvironment()() {
+func LoadEnvironment() {
 	Debug("Checking environment packages and tools")
 	CommandExists("git")
 	Debug("Loading environment variables from ~/.gmenv file")
@@ -44,7 +44,7 @@ func LoadEnvironment()() {
 	if _, err := os.Stat(envFile); errors.Is(err, os.ErrNotExist) {
 		Warning("Env file %s doesn't exist", envFile)
 		localEnv = make(map[string]string)
-		return 
+		return
 	}
 
 	env, err := godotenv.Read(envFile)
@@ -61,11 +61,12 @@ func defineEnvArg(name string) {
 	Question("Define '" + name + "' value:")
 	reader := bufio.NewReader(os.Stdin)
 	newEnvArg, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
+	if err != nil {
+		log.Fatal(err)
+	}
 	newEnvArg = strings.TrimSpace(newEnvArg)
 	localEnv[name] = newEnvArg
 	Debug("Saving %s value", name)
-	godotenv.Write(localEnv, envFile)
+	err = godotenv.Write(localEnv, envFile)
+	CheckIfError(err)
 }

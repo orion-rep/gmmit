@@ -12,12 +12,12 @@
 
 5. Add a label for the new password, and set the following permissions:
 
-| Permission | Type |
-| ---------- | ---- |
-| Repositories | [x] Read |
-| Repositories | [x] Write |
-| Pull requests | [x] Read |
-| Pull requests | [x] Write |
+    | Permission | Type |
+    | ---------- | ---- |
+    | Repositories | [x] Read |
+    | Repositories | [x] Write |
+    | Pull requests | [x] Read |
+    | Pull requests | [x] Write |
 
 6. Click **Create**, and make sure to save the generated password on a safe place.
 
@@ -39,14 +39,14 @@ Check the official [BitBucket Docs](https://support.atlassian.com/bitbucket-clou
 
 6. Fill the form by adding a Note/Name to your token, selecting the experiation time, and make sure to select the following permissions:
 
-| Permission | Description |
-| ---------- | ----------- |
-| [x] repo | Full control of private repositories |
-| [x] repo:status | Access commit status |
-| [x] repo_deployment | Access deployment status |
-| [x] public_repo | Access public repositories |
-| [x] repo:invite | Access repository invitations |
-| [x] security_events | Read and write security events |
+    | Permission | Description |
+    | ---------- | ----------- |
+    | [x] repo | Full control of private repositories |
+    | [x] repo:status | Access commit status |
+    | [x] repo_deployment | Access deployment status |
+    | [x] public_repo | Access public repositories |
+    | [x] repo:invite | Access repository invitations |
+    | [x] security_events | Read and write security events |
 
 7. Click **Generate token**, and make sure to save the generated password on a safe place.
 
