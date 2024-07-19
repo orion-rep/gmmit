@@ -120,6 +120,7 @@ GMMIT_DEBUG=true gmmit
 ```
 
 ### FinishReasonSafety - Message Blocked
+
 ```
 <date-time> blocked: candidate: FinishReasonSafety
 ```
@@ -132,7 +133,7 @@ This error happen when the AI Model detects the content being sent is potenciall
 <date-time> googleapi: Error 429:
 ```
 
-Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API. 
+Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API.
 
 This can occur when making many requests to an API in a short period of time.
 
@@ -164,7 +165,6 @@ git remote set-head origin --auto
 
 Run gmmit again.
 
-
 ## Contributing
 
 Contributors are more than welcome! Here's how you can propose and submit changes to the project.
@@ -180,7 +180,7 @@ This will create a copy of this repository in your account.
 
 <img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/clone.png" alt="clone this repository" />
 
-Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the _copy to clipboard_ icon.
+Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the *copy to clipboard* icon.
 
 Open a terminal and run the following git command:
 
@@ -262,6 +262,7 @@ replacing `your-branch-name` with the name of the branch you created earlier.
 <summary> <strong>If you get any errors while pushing, click here:</strong> </summary>
 
 - ### Authentication Error
+
      <pre>remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
   remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
   fatal: Authentication failed for 'https://github.com/<your-username>/first-contributions.git/'</pre>
@@ -283,9 +284,9 @@ Soon I'll be merging all your changes into the main branch of this project. You 
 
 ### Where to go from here?
 
-Congrats! You just completed the standard _fork -> clone -> edit -> pull request_ workflow!
+Congrats! You just completed the standard *fork -> clone -> edit -> pull request* workflow!
 
-### Repository Internal Structure 
+### Repository Internal Structure
 
 This repository adopts the Golang Project structure as described by Golang-Standards [here](https://github.com/golang-standards/project-layout?tab=readme-ov-file#go-directories).
 

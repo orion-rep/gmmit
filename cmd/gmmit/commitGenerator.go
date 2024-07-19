@@ -4,7 +4,7 @@ import (
 	"os"
 	"fmt"
 	"strings"
-	
+
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
 )
@@ -27,7 +27,7 @@ func GenerateCommitMessage() {
 	Info("Generating commit message")
 
 	prompt = generatePrompt(commitStandard, gitBranch, gitDiff)
-	
+
 	Debug(prompt)
 	res := RunPrompt(prompt)
 
@@ -48,7 +48,7 @@ func GenerateCommitMessage() {
 }
 
 func GetCommitContext()(string, string) {
-	
+
 	diff := string(RunCommand("git","diff","--staged"))
 
 	if len(diff) <= 0 {
@@ -56,11 +56,11 @@ func GetCommitContext()(string, string) {
 		Warning("Add some files to the staging area and run this command again")
 		os.Exit(0)
 	}
-	
+
 	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
 
 	return diff, branch
-    
+
 }
 
 func CreateCommit(msg string) {
@@ -71,7 +71,7 @@ func CreateCommit(msg string) {
 		gitOptions = append(gitOptions, "--no-verify")
 	}
 	gitOptions = append(gitOptions,"-m",msg)
-	
+
 	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")

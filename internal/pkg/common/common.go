@@ -57,9 +57,9 @@ func CheckIfError(err error, context ...string) {
 	}
 	Error(err.Error())
 	if len(context) > 0 {
-		for _, c := range context { 
+		for _, c := range context {
 			Error(c)
-		} 
+		}
 	}
 	os.Exit(1)
 }
@@ -87,7 +87,7 @@ func CommandExists(cmd string) {
 	_, err := exec.LookPath(cmd)
 	if err != nil {
 		Warning("%s could not be found. Install it and run this command again.", cmd)
-	} 
+	}
 	CheckIfError(err)
 }
 

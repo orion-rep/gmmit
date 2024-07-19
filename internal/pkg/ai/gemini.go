@@ -7,7 +7,7 @@ import (
 	"time"
 	"strings"
 	"strconv"
-	
+
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
@@ -30,9 +30,9 @@ func RunPrompt(prompt string) (*genai.GenerateContentResponse) {
 			Threshold: genai.HarmBlockOnlyHigh,
 		},
 	}
-	
+
 	res := SendMessageToModel(ctx, model, prompt)
-	
+
 	return res
 }
 

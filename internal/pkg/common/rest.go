@@ -21,7 +21,7 @@ func CallPost(url string, payload interface{}, user string, pass string) ([]byte
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
     req.Header.Set("Content-Type", "application/json")
     req.SetBasicAuth(user, pass)
-	
+
 	Debug("Sending POST request to: %s", req.URL.String())
 	client := &http.Client{}
 	resp, err := client.Do(req)

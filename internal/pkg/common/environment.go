@@ -44,7 +44,7 @@ func LoadEnvironment()() {
 	if _, err := os.Stat(envFile); errors.Is(err, os.ErrNotExist) {
 		Warning("Env file %s doesn't exist", envFile)
 		localEnv = make(map[string]string)
-		return 
+		return
 	}
 
 	env, err := godotenv.Read(envFile)

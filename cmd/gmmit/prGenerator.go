@@ -4,7 +4,7 @@ import (
 	"os"
 	"fmt"
 	"encoding/json"
-	
+
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
 	"github.com/atotto/clipboard"
@@ -19,12 +19,12 @@ func RunPRGeneration() {
 }
 
 func getPRContext() {
-	
+
 	repositoryName, repositoryProvider = GetRepositoryData()
 	gitDefaultBranch = GetDefaultBranch()
 	gitPRBranch = GetCurrentBranch()
 	gitPRDiff = CalculateDiffBetweenBranches(gitDefaultBranch, gitPRBranch)
-	
+
 	if len(gitPRDiff) <= 0 {
 		Warning("Git diff returned no files")
 		Warning("Add some files to the staging area and run this command again")
@@ -38,7 +38,7 @@ func generatePRMessage() {
 
 	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. Answer must be a valid json with no '`' characters, following this template: {title:'',description:''}.These are the changes to be merged:\n%s",
 		gitPRBranch, gitPRDiff)
-	
+
 	Debug(prPrompt)
 	res := RunPrompt(prPrompt)
 
@@ -62,7 +62,7 @@ func generatePRMessage() {
 		confirmCopyClipboard(prDescription)
 		return
 	}
-	
+
 	confirmPRCreation(prTitle, prDescription, repositoryProvider)
 }
 
@@ -102,11 +102,11 @@ func confirmCopyClipboard(description string) {
 
 
 func createPROnBitbucket(title string, message string, sourceBranch string, repo string) (string){
-	
+
 	url := "https://api.bitbucket.org/2.0/repositories/" + repo + "/pullrequests"
-	
+
 	payload := map[string]interface{}{
-		"title":title, 
+		"title":title,
 		"source": map[string]interface{}{
 			"branch": map[string]string{
 				"name": sourceBranch,
@@ -114,7 +114,7 @@ func createPROnBitbucket(title string, message string, sourceBranch string, repo
 		},
 		"description": message,
 	}
-	
+
 	resp, status, err := CallPost(url, payload ,GetEnvArg("GMMIT_BB_USER"), GetEnvArg("GMMIT_BB_PASS"))
 	CheckIfError(err)
 
@@ -136,16 +136,16 @@ func createPROnBitbucket(title string, message string, sourceBranch string, repo
 }
 
 func createPROnGithub(title string, message string, sourceBranch string, baseBranch string, repo string) (string){
-	
+
 	url := "https://api.github.com/repos/" + repo + "/pulls"
-	
+
 	payload := map[string]interface{}{
-		"title":title, 
+		"title":title,
 		"body": message,
 		"head": sourceBranch,
 		"base": baseBranch,
 	}
-	
+
 	resp, status, err := CallPost(url, payload ,GetEnvArg("GMMIT_GH_USER"), GetEnvArg("GMMIT_GH_PASS"))
 	CheckIfError(err)
 
