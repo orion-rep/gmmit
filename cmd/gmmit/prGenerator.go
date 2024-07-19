@@ -162,7 +162,7 @@ func createPROnGithub(title string, message string, sourceBranch string, baseBra
 		os.Exit(1)
 	}
 
-	newPRURL := fmt.Sprint(response["url"])
+	newPRURL := fmt.Sprint(response["html_url"])
 	Info("PR URL: %s", newPRURL)
 
 	return newPRURL
