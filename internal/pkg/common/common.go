@@ -3,6 +3,7 @@ package common
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"runtime"
@@ -59,6 +60,9 @@ func CheckIfError(err error, context ...string) {
 		return
 	}
 	Error(err.Error())
+	if e, ok := err.(*json.SyntaxError); ok {
+		Error("at byte offset %d", e.Offset)
+	}
 	if len(context) > 0 {
 		for _, c := range context {
 			Error(c)
