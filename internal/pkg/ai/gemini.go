@@ -93,6 +93,8 @@ func ModelResponseToString(resp *genai.GenerateContentResponse) string {
 			}
 		}
 	}
+	// Remove backticks from response
+	stringResponse = strings.Replace(stringResponse, "`", "'", -1)
 	return stringResponse
 }
 
