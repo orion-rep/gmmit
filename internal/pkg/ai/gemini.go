@@ -93,6 +93,10 @@ func ModelResponseToString(resp *genai.GenerateContentResponse) string {
 			}
 		}
 	}
+	stringResponse = strings.TrimSuffix(stringResponse, "\n")
+	// Remove triple backticks from json responses
+	stringResponse = strings.TrimPrefix(stringResponse, "```json")
+	stringResponse = strings.TrimSuffix(stringResponse, "```")
 	return stringResponse
 }
 
