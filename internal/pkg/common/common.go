@@ -40,8 +40,10 @@ func RunCommand(command string, params ...string) string {
 	return out.String()
 }
 
-// CheckArgs should be used to ensure the right command line arguments are
-// passed before executing an example.
+// CheckArgs ensures that the correct command-line arguments are provided
+// before executing an example. It checks if the number of arguments provided
+// is less than the required number of arguments. If so, it prints the usage
+// message and exits the program with a non-zero status code.
 func CheckArgs(arg ...string) {
 	if len(os.Args) < len(arg)+1 {
 		Error("Usage: %s %s", os.Args[0], strings.Join(arg, " "))
@@ -49,7 +51,9 @@ func CheckArgs(arg ...string) {
 	}
 }
 
-// CheckIfError should be used to naively panics if an error is not nil.
+// CheckIfError checks if an error occurred and handles it accordingly.
+// If the error is not nil, it logs the error message and any additional context
+// provided, and then exits the program with a non-zero status code.
 func CheckIfError(err error, context ...string) {
 	if err == nil {
 		return
@@ -63,8 +67,12 @@ func CheckIfError(err error, context ...string) {
 	os.Exit(1)
 }
 
+// AskConfirmation prompts the user with a message and waits for user input.
+// It returns an integer value based on the user's response:
+// 1 for "y" or "yes" (confirmed)
+// 2 for "r" (retry)
+// 0 for any other input (canceled)
 func AskConfirmation(message string) int {
-
 	Question(message)
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -81,6 +89,11 @@ func AskConfirmation(message string) int {
 	}
 }
 
+// CommandExists checks if a given command is installed on the system.
+// It logs a message indicating that it's checking for the command's installation,
+// attempts to find the command's path using exec.LookPath, and if the command
+// is not found, it logs a warning message and prompts the user to install the command.
+// If an error occurs during the process, it handles the error using CheckIfError.
 func CommandExists(cmd string) {
 	Debug("Checking %s installation", cmd)
 	_, err := exec.LookPath(cmd)
@@ -90,8 +103,11 @@ func CommandExists(cmd string) {
 	CheckIfError(err)
 }
 
+// OpenURL opens the specified URL in the default browser of the user's operating system.
+// It determines the appropriate command and arguments based on the user's operating system
+// and executes the command to open the URL in the default browser.
+// This function is based on the solution from the following Stack Overflow question:
 // https://stackoverflow.com/questions/39320371/how-start-web-server-to-open-page-in-browser-in-golang
-// open opens the specified URL in the default browser of the user.
 func OpenURL(url string) error {
 	var cmd string
 	var args []string

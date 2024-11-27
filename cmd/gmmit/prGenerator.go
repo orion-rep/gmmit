@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/atotto/clipboard"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
@@ -42,13 +43,14 @@ func generatePRMessage() {
 	Debug(prPrompt)
 	res := RunPrompt(prPrompt)
 
-	Debug("Model Response:\n%s", ModelResponseToString(res))
+	stringRes := ModelResponseToString(res)
+	Debug("Model Response:\n%s", stringRes)
 
 	var response map[string]string
-	err := json.Unmarshal([]byte(ModelResponseToString(res)), &response)
+	err := json.Unmarshal([]byte(strings.Replace(stringRes, "`", "'", -1)), &response)
+	CheckIfError(err)
 	prTitle := response["title"]
 	prDescription := response["description"]
-	CheckIfError(err)
 
 	Info("Text Generated")
 	Info("PR Title:")
