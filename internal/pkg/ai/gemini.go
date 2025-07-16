@@ -23,7 +23,7 @@ func RunPrompt(prompt string) *genai.GenerateContentResponse {
 	}
 	defer client.Close()
 	Debug("Getting GenAI Model")
-	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-1.5-pro"))
+	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-2.0-flash-lite"))
 	model.SafetySettings = []*genai.SafetySetting{
 		{
 			Category:  genai.HarmCategoryDangerousContent,
