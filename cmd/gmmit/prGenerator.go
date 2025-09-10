@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/atotto/clipboard"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
@@ -28,7 +27,7 @@ func getPRContext() {
 	if len(gitPRDiff) <= 0 {
 		Warning("Git diff returned no files")
 		Warning("Add some files to the staging area and run this command again")
-		os.Exit(0)
+		PrintFinalLine()
 	}
 }
 
@@ -78,7 +77,7 @@ func confirmPRCreation(title, description, repoProvider string) {
 			prURL = createPROnGithub(title, description, gitPRBranch, gitDefaultBranch, repositoryName)
 		default:
 			Error("Unexpected unknown repository provider: %s", repoProvider)
-			os.Exit(1)
+			PrintFailLine()
 		}
 		Info("PR created! You're good to go")
 		err := OpenURL(prURL)
@@ -99,7 +98,7 @@ func confirmCopyClipboard(description string) {
 	case 2:
 		generatePRMessage()
 	default:
-		os.Exit(0)
+		PrintFinalLine()
 	}
 }
 
@@ -128,7 +127,7 @@ func createPROnBitbucket(title string, message string, sourceBranch string, repo
 		Error("PR creation failed with the following error message:")
 		errorResp := response["error"].(map[string]interface{})
 		Error(fmt.Sprint(errorResp["message"]))
-		os.Exit(1)
+		PrintFailLine()
 	}
 
 	newPRURL := fmt.Sprint(response["links"].(map[string]interface{})["html"].(map[string]interface{})["href"])
@@ -161,7 +160,7 @@ func createPROnGithub(title string, message string, sourceBranch string, baseBra
 		if _, ok := response["errors"]; ok {
 			Error(fmt.Sprint(response["errors"].([]interface{})[0].(map[string]interface{})["message"]))
 		}
-		os.Exit(1)
+		PrintFailLine()
 	}
 
 	newPRURL := fmt.Sprint(response["html_url"])

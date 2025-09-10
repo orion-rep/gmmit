@@ -48,7 +48,7 @@ func RunCommand(command string, params ...string) string {
 func CheckArgs(arg ...string) {
 	if len(os.Args) < len(arg)+1 {
 		Error("Usage: %s %s", os.Args[0], strings.Join(arg, " "))
-		os.Exit(1)
+		PrintFailLine()
 	}
 }
 
@@ -59,16 +59,20 @@ func CheckIfError(err error, context ...string) {
 	if err == nil {
 		return
 	}
-	Error(err.Error())
+	Error("Somenthing went wrong")
+	Error("Error: %s", err.Error())
 	if e, ok := err.(*json.SyntaxError); ok {
 		Error("at byte offset %d", e.Offset)
 	}
 	if len(context) > 0 {
 		for _, c := range context {
-			Error(c)
+			lines := strings.Split(string(c), "\n")
+			for _, line := range lines { // Using blank identifier for index if not needed
+				Error(line)
+			}
 		}
 	}
-	os.Exit(1)
+	PrintFailLine()
 }
 
 // AskConfirmation prompts the user with a message and waits for user input.
@@ -82,6 +86,7 @@ func AskConfirmation(message string) int {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := strings.ToLower(strings.TrimSpace(scanner.Text()))
+	DeleteLastLine()
 
 	switch input {
 	case "y", "yes":

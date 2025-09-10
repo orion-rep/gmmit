@@ -30,7 +30,7 @@ func GetEnvArg(name string, defaultValue ...string) string {
 			return GetEnvArg(name, defaultValue...)
 		default:
 			Error(fmt.Sprintf("Config var '%s' is not present", name))
-			os.Exit(1)
+			PrintFailLine()
 		}
 	}
 	return value
@@ -51,7 +51,7 @@ func LoadEnvironment() {
 	if err != nil {
 		Error("Error loading ~/.gmenv file")
 		Error(err.Error())
-		os.Exit(1)
+		PrintFailLine()
 	}
 
 	localEnv = env
