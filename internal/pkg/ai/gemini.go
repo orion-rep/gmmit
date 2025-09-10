@@ -3,7 +3,6 @@ package gemini
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +18,9 @@ func RunPrompt(prompt string) *genai.GenerateContentResponse {
 	Debug("Getting GenAI Client")
 	client, err := genai.NewClient(ctx, option.WithAPIKey(GetEnvArg("GMMIT_API_KEY")))
 	if err != nil {
-		log.Fatal(err)
+		Error("An error occurred while connecting to Gemmini.")
+		Error("Error: %s", err)
+		PrintFailLine()
 	}
 	defer client.Close()
 	Debug("Getting GenAI Model")
@@ -74,11 +75,15 @@ func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg s
 		}
 
 		// For other errors, break the loop
-		log.Fatal(err)
+		Error("Something went wrong while sending the message to Gemini.")
+		Error("Error: %s", err)
+		PrintFailLine()
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		Error("Max number of retries reached.")
+		Error("Error: %s", err)
+		PrintFailLine()
 	}
 
 	return res
@@ -104,7 +109,13 @@ func PrintModelResponse(resp *genai.GenerateContentResponse) {
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
 			for _, part := range cand.Content.Parts {
-				fmt.Println(part)
+				//fmt.Println(part)
+				if text, ok := part.(genai.Text); ok {
+					lines := strings.Split(string(text), "\n")
+					for _, line := range lines { // Using blank identifier for index if not needed
+						InfoH(line)
+					}
+				}
 			}
 		}
 	}

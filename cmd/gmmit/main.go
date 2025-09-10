@@ -12,6 +12,7 @@ var (
 )
 
 func main() {
+	PrintStartupLines()
 	flag.Parse()
 	LoadEnvironment()
 
@@ -20,4 +21,5 @@ func main() {
 	} else {
 		RunCommitGeneration()
 	}
+	PrintFinalLine()
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
@@ -43,7 +42,7 @@ func GenerateCommitMessage() {
 	case 2:
 		GenerateCommitMessage()
 	default:
-		os.Exit(0)
+		PrintFinalLine()
 	}
 }
 
@@ -54,7 +53,7 @@ func GetCommitContext() (string, string) {
 	if len(diff) <= 0 {
 		Warning("Git diff returned no files")
 		Warning("Add some files to the staging area and run this command again")
-		os.Exit(0)
+		PrintFinalLine()
 	}
 
 	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
@@ -75,5 +74,8 @@ func CreateCommit(msg string) {
 	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
-	fmt.Println(string(gitCommit))
+	lines := strings.Split(string(gitCommit), "\n")
+	for _, line := range lines { // Using blank identifier for index if not needed
+		InfoH(line)
+	}
 }
