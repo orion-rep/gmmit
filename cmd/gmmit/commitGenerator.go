@@ -74,7 +74,6 @@ func CreateCommit(msg string) {
 	gitCommit := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
-	//fmt.Println(string(gitCommit))
 	lines := strings.Split(string(gitCommit), "\n")
 	for _, line := range lines { // Using blank identifier for index if not needed
 		InfoH(line)
