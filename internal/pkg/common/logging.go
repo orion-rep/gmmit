@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-var Version string = "[unknown]"
-
 func logLine(logText string) {
 	lineTopLength := 101
 	if len(logText) < lineTopLength {
@@ -56,16 +54,7 @@ func DeleteLastLine() {
 	fmt.Fprint(os.Stdout, "\033[1A\033[2K")
 }
 
-func PrintStartupLines() {
-	fmt.Println(" ╔════════════════════════════════════════════════════════════════════════════════════════╗")
-	fmt.Println(" ║                                 ▗▄▄▖▄▄▄▄  ▄▄▄▄  ▄    ■                                 ║")
-	fmt.Println(" ║                                ▐▌   █ █ █ █ █ █ ▄ ▗▄▟▙▄▖                               ║")
-	fmt.Println(" ║                                ▐▌▝▜▌█   █ █   █ █   ▐▌                                 ║")
-	fmt.Println(" ║                                ▝▚▄▞▘            █   ▐▌                                 ║")
-	fmt.Println(" ║                                                     ▐▌                                 ║")
-	fmt.Println(" ║                                   Version: " + fmt.Sprintf("%-s%*s", Version, 44-len(Version), "") + "║")
-	fmt.Println(" ╚════════════════════════════════════════════════════════════════════════════════════════╝")
-	fmt.Println("")
+func PrintStartLine() {
 	fmt.Println("    ╔═══════════╗")
 	fmt.Println(" ╔══╝  \x1b[34;1mProcess\x1b[0m  ╚═════════════════════════════════════════════════════════════════════════╗")
 }
@@ -73,12 +62,10 @@ func PrintStartupLines() {
 func PrintFinalLine() {
 	fmt.Println(" ╚═════════════════════════════════════════════════════════════════════════════╗  \x1b[34;1mDone\x1b[0m  ╔═╝")
 	fmt.Println("                                                                               ╚════════╝")
-	fmt.Println("")
 	os.Exit(0)
 }
 func PrintFailLine() {
 	fmt.Println(" ╚═══════════════════════════════════════════════════════════════════════════════╗  \x1b[31;1mFail\x1b[0m  ║")
 	fmt.Println("                                                                                 ╚════════╝")
-	fmt.Println("")
 	os.Exit(1)
 }

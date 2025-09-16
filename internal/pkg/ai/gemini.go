@@ -24,7 +24,7 @@ func RunPrompt(prompt string) *genai.GenerateContentResponse {
 	}
 	defer client.Close()
 	Debug("Getting GenAI Model")
-	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-2.0-flash-lite"))
+	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-2.5-flash-lite"))
 	model.SafetySettings = []*genai.SafetySetting{
 		{
 			Category:  genai.HarmCategoryDangerousContent,
@@ -68,7 +68,7 @@ func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg s
 		}
 
 		// Check if the error is a 500 Internal Server Error
-		if strings.Contains(err.Error(), "500") {
+		if strings.Contains(err.Error(), "50") {
 			Debug(fmt.Sprintf("Received 500 error, retrying in %v (attempt %d/%d)", retryDelayDuration, i+1, maxRetries))
 			time.Sleep(retryDelayDuration)
 			continue
@@ -77,7 +77,8 @@ func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg s
 		// For other errors, break the loop
 		Error("Something went wrong while sending the message to Gemini.")
 		Error("Error: %s", err)
-		PrintFailLine()
+		//Warning("Retrying AI query...")
+		//time.Sleep(2 * time.Second) // Sleep for 2 seconds
 	}
 
 	if err != nil {
