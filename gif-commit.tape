@@ -55,14 +55,14 @@
 #   Hide                            Hide the subsequent commands from the output
 #   Show                            Show the subsequent commands in the output
 
-Output commit.gif
+Output images/commit.gif
 
 Require echo
 
 Set Shell "bash"
 Set FontSize 24
-Set Width 1200
-Set Height 800
+Set Width 1650
+Set Height 1000
 
 Type "gmmit" Sleep 700ms  Enter
 
