@@ -22,6 +22,7 @@ After that, just execute `git push`, and it's done.
 | ------ | ----------- |
 | --no-verify | Add the option to skip git hooks and commit even if the pre-commit hooks fail. This is helpful when you are sure that your changes are correct and you don't want to wait for the hooks to run. |
 | --pr | It creates a Pull Request title and description based on the changes between the current and default branch. If the git provider is supported offers the option to create the PR. |
+| --pu | It will automatically push the commit to the remote origin after creating it. |
 
 #### Generate Commit Message
 
