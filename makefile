@@ -1,7 +1,7 @@
 BINARY_NAME=build/gmmit
 MAIN_GO_FILE=./cmd/gmmit/
 INSTALL_DIR:=/usr/local/bin
-APP_VERSION := $(shell git describe --always --long --dirty)
+APP_VERSION := $(shell git describe --tags --always --dirty)
 
 .PHONY : clean build
 
