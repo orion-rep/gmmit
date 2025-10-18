@@ -88,10 +88,10 @@ func CreateCommit(msg string) {
 func pushCommit() {
 	Info("Pushing Commit")
 	gitOptions := []string{"push"}
-	gitCommit := RunCommand("git", gitOptions...)
+	gitPush := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
-	lines := strings.Split(string(gitCommit), "\n")
+	lines := strings.Split(string(gitPush), "\n")
 	for _, line := range lines {
 		InfoH(line)
 	}
