@@ -10,8 +10,9 @@ import (
 var (
 	Version string = "[unknown]"
 
-	noVerifyFlag = flag.Bool("no-verify", false, "Runs the 'git commit' command with '--no-verify'.")
-	generatePR   = flag.Bool("pr", false, "Generates a PR Message for changes in branch to be merged into default branch.")
+	noVerifyFlag  = flag.Bool("no-verify", false, "Runs the 'git commit' command with '--no-verify'.")
+	generatePR    = flag.Bool("pr", false, "Generates a PR Message for changes in branch to be merged into default branch.")
+	runCommitPush = flag.Bool("pu", false, "Runs 'git push' after creating the commit.")
 )
 
 func PrintHeader() {
