@@ -91,7 +91,7 @@ func pushCommit() {
 	gitPush := RunCommand("git", gitOptions...)
 
 	Info("Git Command Log:")
-	Debug(gitPush)
+	Debug(gitPush) // Should not be empty
 	lines := strings.Split(string(gitPush), "\n")
 	for _, line := range lines {
 		InfoH(line)
