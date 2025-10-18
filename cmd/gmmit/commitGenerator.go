@@ -35,10 +35,11 @@ func GenerateCommitMessage() {
 	PrintModelResponse(res)
 	Info("---")
 
-	switch option := AskConfirmation("Create a commit with this message? or Regenerate the text(r)? [y/N/r]"); option {
+	switch option := AskConfirmation("Do you want to use this commit message (y) or regenerate it (r)? [y/N/r]"); option {
 	case 1:
 		CreateCommit(ModelResponseToString(res))
-		Info("Commit created, remember to run 'git push'.")
+		Info("Commit created.")
+		Warning("Remember to run 'git push' !")
 	case 2:
 		GenerateCommitMessage()
 	default:

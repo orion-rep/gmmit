@@ -67,7 +67,7 @@ func generatePRMessage() {
 }
 
 func confirmPRCreation(title, description, repoProvider string) {
-	switch option := AskConfirmation("Do you want to create the PR(y)? or Regenerate the text(r)? [y/N/r]"); option {
+	switch option := AskConfirmation("Do you want to create the PR with this description(y) or regenerate it (r)? [y/N/r]"); option {
 	case 1:
 		prURL := ""
 		switch repoProvider {
@@ -90,7 +90,7 @@ func confirmPRCreation(title, description, repoProvider string) {
 }
 
 func confirmCopyClipboard(description string) {
-	switch option := AskConfirmation("Copy this PR Description to your clipboard(y)? or Regenerate the text(r)? [y/N/r]"); option {
+	switch option := AskConfirmation("Do you want to copy this PR description to your clipboard(y) or regenerate the text(r)? [y/N/r]"); option {
 	case 1:
 		err := clipboard.WriteAll(description)
 		CheckIfError(err)
