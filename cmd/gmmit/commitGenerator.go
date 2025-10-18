@@ -88,12 +88,7 @@ func CreateCommit(msg string) {
 func pushCommit() {
 	Info("Pushing Commit")
 	gitOptions := []string{"push"}
-	gitPush := RunCommand("git", gitOptions...)
+	RunCommand("git", gitOptions...)
 
-	Info("Git Command Log:")
-	Debug(gitPush) // Should not be empty
-	lines := strings.Split(string(gitPush), "\n")
-	for _, line := range lines {
-		InfoH(line)
-	}
+	Info("Changes pushed to remote repo.")
 }
