@@ -113,7 +113,7 @@ func PrintModelResponse(resp *genai.GenerateContentResponse) {
 				//fmt.Println(part)
 				if text, ok := part.(genai.Text); ok {
 					lines := strings.Split(string(text), "\n")
-					for _, line := range lines { // Using blank identifier for index if not needed
+					for _, line := range lines {
 						InfoH(line)
 					}
 				}

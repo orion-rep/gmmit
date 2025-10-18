@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/atotto/clipboard"
 	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
@@ -26,7 +27,7 @@ func getPRContext() {
 
 	if len(gitPRDiff) <= 0 {
 		Warning("Git diff returned no files")
-		Warning("Add some files to the staging area and run this command again")
+		Warning("Push your commits to the remote branch and run this command again.")
 		PrintFinalLine()
 	}
 }
@@ -52,9 +53,12 @@ func generatePRMessage() {
 
 	Info("Text Generated")
 	Info("PR Title:")
-	fmt.Println(prTitle)
+	InfoH(prTitle)
 	Info("PR Description:")
-	fmt.Println(prDescription)
+	prDescriptionLines := strings.Split(string(prDescription), "\n")
+	for _, line := range prDescriptionLines {
+		InfoH(line)
+	}
 	Info("---")
 
 	if repositoryProvider == "Generic" {
