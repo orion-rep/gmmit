@@ -39,7 +39,11 @@ func GenerateCommitMessage() {
 	case 1:
 		CreateCommit(ModelResponseToString(res))
 		Info("Commit created.")
-		Warning("Remember to run 'git push' !")
+		if *runCommitPush {
+			pushCommit()
+		} else {
+			Warning("Remember to run 'git push' !")
+		}
 	case 2:
 		GenerateCommitMessage()
 	default:
@@ -76,7 +80,15 @@ func CreateCommit(msg string) {
 
 	Info("Git Command Log:")
 	lines := strings.Split(string(gitCommit), "\n")
-	for _, line := range lines { // Using blank identifier for index if not needed
+	for _, line := range lines {
 		InfoH(line)
 	}
+}
+
+func pushCommit() {
+	Info("Pushing Commit")
+	gitOptions := []string{"push"}
+	RunCommand("git", gitOptions...)
+
+	Info("Changes pushed to remote repo.")
 }
