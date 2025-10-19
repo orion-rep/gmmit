@@ -6,8 +6,8 @@ Require echo
 
 Set Shell "bash"
 Set FontSize 24
-Set Width 1200
-Set Height 800
+Set Width 1700
+Set Height 1000
 
 Type "gmmit --pr" Sleep 700ms  Enter
 
