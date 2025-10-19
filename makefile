@@ -24,3 +24,4 @@ clean:
 
 tapes:
 	vhs gif-commit.tape
+	vhs gif-pull-request.tape
