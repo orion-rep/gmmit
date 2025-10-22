@@ -21,3 +21,7 @@ install: build
 clean:
 	go clean
 	rm -f ${BINARY_NAME}
+
+tapes:
+	vhs gif-commit.tape
+	vhs gif-pull-request.tape
