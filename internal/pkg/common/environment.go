@@ -11,13 +11,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var localEnv map[string]string
+var LocalEnv map[string]string
 
 var envFile = string(os.Getenv("HOME")) + "/.gmenv"
 
 func GetEnvArg(name string, defaultValue ...string) string {
 	var value = ""
-	if val, ok := localEnv[name]; ok {
+	if val, ok := LocalEnv[name]; ok {
 		value = val
 	} else if envVal, exists := os.LookupEnv(name); exists {
 		value = envVal
@@ -43,7 +43,7 @@ func LoadEnvironment() {
 
 	if _, err := os.Stat(envFile); errors.Is(err, os.ErrNotExist) {
 		Warning("Env file %s doesn't exist", envFile)
-		localEnv = make(map[string]string)
+		LocalEnv = make(map[string]string)
 		return
 	}
 
@@ -54,7 +54,7 @@ func LoadEnvironment() {
 		PrintFailLine()
 	}
 
-	localEnv = env
+	LocalEnv = env
 }
 
 func defineEnvArg(name string) {
@@ -65,8 +65,8 @@ func defineEnvArg(name string) {
 		log.Fatal(err)
 	}
 	newEnvArg = strings.TrimSpace(newEnvArg)
-	localEnv[name] = newEnvArg
+	LocalEnv[name] = newEnvArg
 	Debug("Saving %s value", name)
-	err = godotenv.Write(localEnv, envFile)
+	err = godotenv.Write(LocalEnv, envFile)
 	CheckIfError(err)
 }

@@ -10,6 +10,8 @@ import (
 
 var commitStandard, prompt, gitDiff, gitBranch string = "", "", "", ""
 
+var runPromptFn = RunPrompt
+
 func RunCommitGeneration() {
 	Info("Getting context information")
 	gitDiff, gitBranch = GetCommitContext()
@@ -28,7 +30,7 @@ func GenerateCommitMessage() {
 	prompt = generatePrompt(commitStandard, gitBranch, gitDiff)
 
 	Debug(prompt)
-	res := RunPrompt(prompt)
+	res := runPromptFn(prompt)
 
 	Info("Text Generated")
 	Info("Commit Message:")

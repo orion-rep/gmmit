@@ -8,6 +8,8 @@ import (
 
 var dateFormat string = "2006-01-02 - 15:04:05"
 
+var OsExit = os.Exit
+
 func logLine(logText string) {
 	fmt.Printf("%s ║ %s\n", time.Now().Format(dateFormat), logText)
 }
@@ -55,10 +57,10 @@ func PrintStartLine() {
 
 func PrintFinalLine() {
 	fmt.Printf("%s ╚══[ \x1b[34;1mDone\x1b[0m ]\n", time.Now().Format(dateFormat))
-	os.Exit(0)
+	OsExit(0)
 }
 
 func PrintFailLine() {
 	fmt.Printf("%s ╚══[ \x1b[31;1mFail\x1b[0m ]\n", time.Now().Format(dateFormat))
-	os.Exit(1)
+	OsExit(1)
 }

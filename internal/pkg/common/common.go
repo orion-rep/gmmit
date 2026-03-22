@@ -4,11 +4,16 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 )
+
+var ExecCommand = exec.Command
+
+var StdinReader io.Reader = os.Stdin
 
 // RunCommand executes a command-line command with the provided parameters
 // and returns the output of the command as a string.
@@ -17,7 +22,7 @@ func RunCommand(command string, params ...string) string {
 	Debug("Running command: \"%s\", with params: %s", command, params)
 
 	// Create a new command object with the provided command and parameters
-	cmd := exec.Command(command, params...)
+	cmd := ExecCommand(command, params...)
 
 	// Create buffers to store the standard output and standard error
 	var out bytes.Buffer
@@ -83,7 +88,7 @@ func CheckIfError(err error, context ...string) {
 func AskConfirmation(message string) int {
 	Question(message)
 
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(StdinReader)
 	scanner.Scan()
 	input := strings.ToLower(strings.TrimSpace(scanner.Text()))
 	DeleteLastLine()
@@ -131,5 +136,5 @@ func OpenURL(url string) error {
 		cmd = "xdg-open"
 	}
 	args = append(args, url)
-	return exec.Command(cmd, args...).Start()
+	return ExecCommand(cmd, args...).Start()
 }

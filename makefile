@@ -3,7 +3,7 @@ MAIN_GO_FILE=./cmd/gmmit/
 INSTALL_DIR:=/usr/local/bin
 APP_VERSION := $(shell git describe --tags --always --dirty)
 
-.PHONY : clean build
+.PHONY: clean build test cover
 
 build:
 	@echo "Building version $(APP_VERSION)"
@@ -17,6 +17,13 @@ run: build
 install: build
 	@echo "Installing $(BINARY_NAME) to $(INSTALL_DIR)..."
 	sudo install -m 755 $(BINARY_NAME) $(INSTALL_DIR)
+
+test:
+	go test -race -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
+
+cover: test
+	go tool cover -html=coverage.out
 
 clean:
 	go clean
