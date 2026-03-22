@@ -12,6 +12,8 @@ import (
 
 var prPrompt, gitPRDiff, gitDefaultBranch, gitPRBranch, repositoryName, repositoryProvider string = "", "", "", "", "", ""
 
+var callPostFn = CallPost
+
 func RunPRGeneration() {
 	Info("Getting context information")
 	getPRContext()
@@ -40,7 +42,7 @@ func generatePRMessage() {
 		gitPRBranch, gitPRDiff)
 
 	Debug(prPrompt)
-	res := RunPrompt(prPrompt)
+	res := runPromptFn(prPrompt)
 
 	stringRes := ModelResponseToString(res)
 	Debug("Model Response:\n%s", stringRes)
@@ -120,7 +122,7 @@ func createPROnBitbucket(title string, message string, sourceBranch string, repo
 		"description": message,
 	}
 
-	resp, status, err := CallPost(url, payload, GetEnvArg("GMMIT_BB_USER"), GetEnvArg("GMMIT_BB_PASS"))
+	resp, status, err := callPostFn(url, payload, GetEnvArg("GMMIT_BB_USER"), GetEnvArg("GMMIT_BB_PASS"))
 	CheckIfError(err)
 
 	response, err := ResponseJsonParser(resp)
@@ -151,7 +153,7 @@ func createPROnGithub(title string, message string, sourceBranch string, baseBra
 		"base":  baseBranch,
 	}
 
-	resp, status, err := CallPost(url, payload, GetEnvArg("GMMIT_GH_USER"), GetEnvArg("GMMIT_GH_PASS"))
+	resp, status, err := callPostFn(url, payload, GetEnvArg("GMMIT_GH_USER"), GetEnvArg("GMMIT_GH_PASS"))
 	CheckIfError(err)
 
 	response, err := ResponseJsonParser(resp)
