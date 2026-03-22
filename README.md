@@ -1,299 +1,187 @@
 # GMMIT
 
-This a small terminal tool to help developers or any person interacting with Git to write their commit messages.
-
----
-
-You'd certainly agree that inspecting a properly maintained git history log that follows the [Conventional Commits](https://www.conventionalcommits.org) standard is nice and simple.
-And you'd also agree that having to dedicate time to come up with those neat and descriptive messages is a bummer. Well, here's where **gmmit** comes to saves the day.
-
-Run the `gmmit` command on a folder with a git repository, and it will check your staged changes, the current branch name, and generate a tidy commit message for you, and even run "git commit".
-After that, just execute `git push`, and it's done.
+A CLI tool that uses Google Gemini AI to generate [Conventional Commits](https://www.conventionalcommits.org)-compliant commit messages and pull request descriptions from your staged changes.
 
 ![gmmit command example](images/commit.gif)
 
-## Getting started
+---
 
-### Usage
+## Installation
 
-#### Options
+### Linux and macOS
 
-| option | description |
-| ------ | ----------- |
-| --no-verify | Add the option to skip git hooks and commit even if the pre-commit hooks fail. This is helpful when you are sure that your changes are correct and you don't want to wait for the hooks to run. |
-| --pr | It creates a Pull Request title and description based on the changes between the current and default branch. If the git provider is supported offers the option to create the PR. |
-| --pu | It will automatically push the commit to the remote origin after creating it. |
+```bash
+curl -fsSL https://raw.githubusercontent.com/orion-rep/gmmit/main/scripts/install.sh | bash
+```
 
-#### Generate Commit Message
+The script detects your OS and architecture, downloads the latest release binary, and installs it to `/usr/local/bin`.
 
-Gmmit will check your current staged file changes and use an LLM to generate a commit message.
-It'll give you the chance to re-generate it if you don't like it, or to create the commit on you local repo running `git commit -m <msg>` for you.
+### Manual
 
-Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
+Download the binary for your platform from the [releases page](https://github.com/orion-rep/gmmit/releases), extract it, and move it to a directory on your `PATH` (e.g. `/usr/local/bin`).
 
-1. Get a Gemini API Key. You'll need a Google Account (Gmail) to do this, then follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key).
+### Requirements
 
-2. Download the binary for you OS from the release section, and install it with your apps.
+- A Gemini API key — get one [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key) (free, requires a Google account)
 
-    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
+On first run, gmmit will prompt you for the API key and save it to `~/.gmenv`.
 
-3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
+---
 
-    ```bash
-    gmmit
-    ```
+## Usage
 
-4. Profit.
+### Generate a commit message
 
-#### Generate Pull Request Title and Description
+Stage your changes and run:
 
-Gmmit will check the changes between the current branch and default one and use an LLM to generate a pull request title and description.
-It'll give you the chance to re-generate it if you don't like it, or to create the pull request if the git provider is supported.
+```bash
+git add <files>
+gmmit
+```
 
-Gmmit uses `Gemmini AI` models to generate the messages. For it to work you need to provide an `API KEY` first.
+gmmit reads your staged diff and branch name, generates a Conventional Commit message, and asks what to do:
 
-1. Get a Gemini API Key. You'll need a Google Account (Gmail) to do this, then follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key).
+- `y` — create the commit
+- `r` — regenerate the message
+- `N` — cancel
 
-2. Download the binary for you OS from the release section, and install it with your apps.
+The generated message follows the pattern `<type>[scope]: <description> (#<ticket-id>)`, where the ticket ID is extracted automatically from your branch name (e.g. `feat/123-my-feature` → `#123`).
 
-    If you're using Linux or MacOS you wanna move it to `/usr/local/bin`, or any other folder on your `PATH`.
+### Generate a pull request
 
-3. Now move to a folder with a git repository, add some files to the staging area, and run the command.
+```bash
+gmmit --pr
+```
 
-    ```bash
-    gmmit --pr
-    ```
+gmmit diffs your branch against the default branch, generates a PR title and description, and — if you're on GitHub or Bitbucket — offers to create the PR directly via the API and open it in your browser. Otherwise it copies the content to your clipboard.
 
-    **NOTE**: In order to be able to create the PRs on the cloud git provider, gmmit will ask for your credentials. You'll need to provider an [access token](docs/git-tokens.md).
-
-4. Profit.
+To create PRs via the API you'll need an access token. See [docs/git-tokens.md](docs/git-tokens.md) for setup instructions.
 
 ![gmmit pull request example](images/pull-request.gif)
 
-**DISCLAIMER**: The steps from the "How to test?" section might by wrong sometimes, make sure you review all the sections before sending the PR to codereview.
+### Push after committing
 
-### Dependencies
+```bash
+gmmit --pu
+```
 
-| Dependency | Version |
-| ---------- | ------- |
-| Golang     | 1.22.*  |
-| golangci-lint | 1.59.* |
-| goimports | 0.23.* |
+Commits and immediately runs `git push` to the remote origin.
 
-### Build
+### Skip pre-commit hooks
 
-1. You need to have Golang installed, and a couple of other tools in order to run the pre-commit hooks
+```bash
+gmmit --no-verify
+```
 
-    ```bash
-    brew install go golangci-lint
-    go install golang.org/x/tools/cmd/goimports@latest
-    ```
+Passes `--no-verify` to `git commit`, skipping any configured pre-commit hooks.
 
-2. To test it you'll need `git` as well.
+### Options reference
 
-3. Run you code:
+| Option | Description |
+| ------ | ----------- |
+| `--pr` | Generate a PR title and description instead of a commit message |
+| `--pu` | Automatically push to remote origin after committing |
+| `--no-verify` | Skip pre-commit hooks when creating the commit |
 
-    ```bash
-    go run ./cmd/gmmit/
-    ```
+---
 
-    **NOTE**: You will be asked to provide a Gamini API Key, follow the steps described [here](https://geminiforwork.gwaddons.com/setup-api-keys/create-geminiai-api-key) to create it.
+## Configuration
 
-4. Optionally, run the build command
+All configuration is stored in `~/.gmenv`. gmmit prompts for required values on first use and saves them automatically.
 
-    ```bash
-    go build -o build/gmmit ./cmd/gmmit/
-    ```
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `GMMIT_API_KEY` | — | **Required.** Gemini API key |
+| `GMMIT_MODEL` | `gemini-2.5-flash-lite` | Gemini model to use |
+| `GMMIT_COMMIT_PATTERN` | `<type>[optional scope]: <description> (#<ticket-id>)` | Commit message format |
+| `GMMIT_GH_USER` | — | GitHub username (for PR creation) |
+| `GMMIT_GH_PASS` | — | GitHub personal access token (for PR creation) |
+| `GMMIT_BB_USER` | — | Bitbucket username (for PR creation) |
+| `GMMIT_BB_PASS` | — | Bitbucket app password (for PR creation) |
+| `GMMIT_MAX_RETRIES` | `5` | Retries on API 500 errors |
+| `GMMIT_RETRY_DELAY` | `5` | Seconds between retries |
+| `GMMIT_DEBUG` | `false` | Enable debug logging |
 
-    **NOTE**: If working on MacOS, you may need to build the arm version in order to test it on you local.
+See [docs/configuration.md](docs/configuration.md) for full details.
 
-    ```bash
-    env GOOS=darwin GOARCH=arm64 go build -o build/gmmit ./cmd/gmmit/
-    ```
+---
 
 ## Troubleshooting
 
-If you're having issues running **gmmit**, try executing it in *debug* mode, and checking the following common issues before submiting a new issue.
-
-### Debug Mode
-
-Run the command as follow to get debug output logs:
+Run gmmit with debug logging to get detailed output:
 
 ```bash
 GMMIT_DEBUG=true gmmit
 ```
 
-### FinishReasonSafety - Message Blocked
+### FinishReasonSafety — message blocked
 
-```txt
+```
 <date-time> blocked: candidate: FinishReasonSafety
 ```
 
-This error happen when the AI Model detects the content being sent is potencially dangerous. Review the content of the changes being sent and try again.
+The AI model flagged the diff content as potentially sensitive. Review your staged changes and try again.
 
-### Error 429 - Quota Exceeded
+### Error 429 — quota exceeded
 
-```txt
+```
 <date-time> googleapi: Error 429:
 ```
 
-Error 429 generally indicates that you have exceeded the limit of allowed requests in a specific time period when interacting with a Google API.
+You've exceeded the Gemini API rate limit. Wait a moment and try again.
 
-This can occur when making many requests to an API in a short period of time.
+### Error 500 — unknown error
 
-### Error 500 - Unknown Cause
-
-```txt
+```
 <date-time> googleapi: Error 500:
 ```
 
-Error 500 is a generic http code for a 'error' message, we have no explanation why google API responds with that sometime, it can be any reason they want to send an error message.
+Intermittent error from the Gemini API. gmmit retries automatically; if it keeps failing, try again in a few seconds.
 
-An educated guess would be they are just receiving too many generation requests and send an error message because the api key being use to call the generation is a free one.
+### PR fails — ambiguous argument
 
-Usually the next time you run the command it works just fine.
-
-### Pull Request fail - ambiguous argument
-
-```txt
+```
 fatal: ambiguous argument 'remotes/origin/HEAD': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
 ```
 
-This is usually due to having `origin/HEAD` missing on your local repo. This ref is generated during clone, if you don't have it, run the following command to make Git set it for you:
+Your local repo is missing the `origin/HEAD` ref. Fix it with:
 
 ```bash
 git remote set-head origin --auto
 ```
 
-Run gmmit again.
+---
 
 ## Contributing
-<!-- markdownlint-disable MD033 -->
 
-Contributors are more than welcome! Here's how you can propose and submit changes to the project.
+Contributions are welcome! Fork the repo, make your changes on a branch, and open a pull request.
 
-(These steps are based on [First Contributions](https://github.com/firstcontributions/first-contributions/blob/main/README.md) documents.)
+Every commit in this repo should follow the [Conventional Commits](https://www.conventionalcommits.org) standard — use gmmit for that.
 
-### Fork this repository
+### Build from source
 
-Fork this repository by clicking on the fork button on the top of this page.
-This will create a copy of this repository in your account.
-
-### Clone the repository
-
-<img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/clone.png" alt="clone this repository" />
-
-Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the *copy to clipboard* icon.
-
-Open a terminal and run the following git command:
+You'll need Go 1.22+, golangci-lint, and goimports:
 
 ```bash
-git clone "url you just copied"
+brew install go golangci-lint
+go install golang.org/x/tools/cmd/goimports@latest
 ```
 
-where "url you just copied" (without the quotation marks) is the url to this repository (your fork of this project). See the previous steps to obtain the url.
-
-<img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/copy-to-clipboard.png" alt="copy URL to clipboard" />
-
-For example:
+Run locally:
 
 ```bash
-git clone git@github.com:this-is-you/first-contributions.git
+go run ./cmd/gmmit/
 ```
 
-where `this-is-you` is your GitHub username. Here you're copying the contents of the first-contributions repository on GitHub to your computer.
-
-### Create a branch
-
-Change to the repository directory on your computer (if you are not already there):
+Build binary:
 
 ```bash
-cd first-contributions
+make build
 ```
 
-Now create a branch using the `git switch` command:
+This repository follows the [Golang standard project layout](https://github.com/golang-standards/project-layout?tab=readme-ov-file#go-directories).
 
-```bash
-git switch -c your-new-branch-name
-```
-
-For example:
-
-```bash
-git switch -c add-alonzo-church
-```
-
-### Make necessary changes and commit those changes
-
-Now open `Contributors.md` file in a text editor, add your name to it. Don't add it at the beginning or end of the file. Put it anywhere in between. Now, save the file.
-
-<img align="right" width="450" src="https://firstcontributions.github.io/assets/Readme/git-status.png" alt="git status" />
-
-If you go to the project directory and execute the command `git status`, you'll see there are changes.
-
-Add those changes to the branch you just created using the `git add` command:
-
-```bash
-git add Contributors.md
-```
-
-Of course every commit in this repo should follow the [Conventional Commits](https://www.conventionalcommits.org) standard (c'mon, just use the tool you're building).
-
-```bash
-gmmit
-```
-
-or
-
-```bash
-git commit -m "<type>[optional scope]: Add your-name to Contributors list"
-```
-
-replacing `your-name` with your name.
-
-### Push changes to GitHub
-
-Push your changes using the command `git push`:
-
-```bash
-git push -u origin your-branch-name
-```
-
-replacing `your-branch-name` with the name of the branch you created earlier.
-
-<details>
-<summary> <strong>If you get any errors while pushing, click here:</strong> </summary>
-
-- ### Authentication Error
-
-     <pre>remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
-  remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
-  fatal: Authentication failed for 'https://github.com/<your-username>/first-contributions.git/'</pre>
-  Go to [GitHub's tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) on generating and configuring an SSH key to your account.
-
-</details>
-
-### Submit your changes for review
-
-If you go to your repository on GitHub, you'll see a `Compare & pull request` button. Click on that button.
-
-<img style="float: right;" src="https://firstcontributions.github.io/assets/Readme/compare-and-pull.png" alt="create a pull request" />
-
-Now submit the pull request.
-
-<img style="float: right;" src="https://firstcontributions.github.io/assets/Readme/submit-pull-request.png" alt="submit pull request" />
-
-Soon I'll be merging all your changes into the main branch of this project. You will get a notification email once the changes have been merged.
-<!-- markdownlint-enable MD033 -->
-### Where to go from here?
-
-Congrats! You just completed the standard *fork -> clone -> edit -> pull request* workflow!
-
-### Repository Internal Structure
-
-This repository adopts the Golang Project structure as described by Golang-Standards [here](https://github.com/golang-standards/project-layout?tab=readme-ov-file#go-directories).
+---
 
 ## License
 
