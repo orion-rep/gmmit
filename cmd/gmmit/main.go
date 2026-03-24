@@ -15,6 +15,7 @@ var (
 	runCommitPush = flag.Bool("pu", false, "Runs 'git push' after creating the commit.")
 	autoConfirm   = flag.Bool("y", false, "Auto-confirm all prompts, run in non-interactive mode.")
 	commitType    = flag.String("type", "", "Force the commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert).")
+	hintFlag      = flag.String("hint", "", "Free-text hint for the AI model about what changes to focus on.")
 )
 
 func PrintHeader() {

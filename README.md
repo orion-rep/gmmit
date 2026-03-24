@@ -94,6 +94,15 @@ gmmit --type fix
 Tells the model which Conventional Commit type to use. Accepted values: `feat`, `fix`, `docs`, `style`,
 `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. An invalid value exits with an error.
 
+### Give the AI a hint
+
+```bash
+gmmit --hint "focus on the database migration changes"
+```
+
+Passes a free-text hint to the AI model so it prioritises the specified changes when writing the commit
+message or PR description. Useful when staging a large diff with many unrelated changes.
+
 ### Options reference
 
 | Option | Description |
@@ -103,6 +112,7 @@ Tells the model which Conventional Commit type to use. Accepted values: `feat`, 
 | `--no-verify` | Skip pre-commit hooks when creating the commit |
 | `-y` | Auto-confirm all prompts, run in non-interactive mode |
 | `--type <type>` | Force the commit type (feat, fix, docs, etc.) |
+| `--hint <text>` | Free-text hint for the AI model about what changes to focus on |
 
 ---
 

@@ -34,12 +34,20 @@ func getPRContext() {
 	}
 }
 
+func generatePRPrompt(branch, diff, hint string) string {
+	hintConstraint := ""
+	if hint != "" {
+		hintConstraint = fmt.Sprintf(" Focus on the following when writing the PR message: \"%s\".", hint)
+	}
+	return fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end.%s Answer must be a valid json with no '`' characters, following this template: {title:'',description:''}.These are the changes to be merged:\n%s",
+		branch, hintConstraint, diff)
+}
+
 func generatePRMessage() {
 
 	common.Info("Generating PR message")
 
-	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. Answer must be a valid json with no '`' characters, following this template: {title:'',description:''}.These are the changes to be merged:\n%s",
-		gitPRBranch, gitPRDiff)
+	prPrompt = generatePRPrompt(gitPRBranch, gitPRDiff, *hintFlag)
 
 	common.Debug(prPrompt)
 	res := runPromptFn(prPrompt)
