@@ -40,25 +40,60 @@ func makeResponse(text string) *genai.GenerateContentResponse {
 }
 
 func TestGeneratePrompt_ContainsAllInputs(t *testing.T) {
-	result := generatePrompt("feat: <desc>", "feature/123-my-feature", "diff content here")
+	result := generatePrompt("feat: <desc>", "feature/123-my-feature", "diff content here", "")
 	assert.Contains(t, result, "feat: <desc>")
 	assert.Contains(t, result, "feature/123-my-feature")
 	assert.Contains(t, result, "diff content here")
 }
 
 func TestGeneratePrompt_MentionsConventionalCommits(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff")
+	result := generatePrompt("standard", "branch", "diff", "")
 	assert.Contains(t, result, "Conventional Commits")
 }
 
 func TestGeneratePrompt_MentionsTicketID(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff")
+	result := generatePrompt("standard", "branch", "diff", "")
 	assert.Contains(t, result, "Ticket ID")
 }
 
 func TestGeneratePrompt_MentionsBranchName(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff")
+	result := generatePrompt("standard", "branch", "diff", "")
 	assert.Contains(t, result, "branch name")
+}
+
+func TestGeneratePrompt_WithTypeHint(t *testing.T) {
+	result := generatePrompt("standard", "branch", "diff", "fix")
+	assert.Contains(t, result, `MUST be: "fix"`)
+}
+
+func TestGeneratePrompt_NoTypeHint(t *testing.T) {
+	result := generatePrompt("standard", "branch", "diff", "")
+	assert.NotContains(t, result, "MUST be:")
+}
+
+func TestValidateCommitType_Valid(t *testing.T) {
+	for _, ct := range validCommitTypes {
+		assert.True(t, validateCommitType(ct), "expected %q to be valid", ct)
+	}
+}
+
+func TestValidateCommitType_Invalid(t *testing.T) {
+	assert.False(t, validateCommitType("bad"))
+	assert.False(t, validateCommitType(""))
+	assert.False(t, validateCommitType("Fix"))
+}
+
+func TestRunCommitGeneration_InvalidType_CallsExit(t *testing.T) {
+	bad := "bad"
+	commitType = &bad
+	defer func() { empty := ""; commitType = &empty }()
+
+	var code int
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
+
+	captureStdout(RunCommitGeneration)
+	assert.Equal(t, 1, code)
 }
 
 func TestPrintHeader_ContainsVersion(t *testing.T) {
