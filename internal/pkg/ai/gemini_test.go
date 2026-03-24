@@ -15,7 +15,7 @@ func captureStdout(f func()) string {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	f()
-	w.Close()
+	_ = w.Close()
 	var buf bytes.Buffer
 	io.Copy(&buf, r) //nolint:errcheck
 	os.Stdout = old

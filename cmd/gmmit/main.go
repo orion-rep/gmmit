@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 var (
@@ -13,6 +13,7 @@ var (
 	noVerifyFlag  = flag.Bool("no-verify", false, "Runs the 'git commit' command with '--no-verify'.")
 	generatePR    = flag.Bool("pr", false, "Generates a PR Message for changes in branch to be merged into default branch.")
 	runCommitPush = flag.Bool("pu", false, "Runs 'git push' after creating the commit.")
+	autoConfirm   = flag.Bool("y", false, "Auto-confirm all prompts, run in non-interactive mode.")
 )
 
 func PrintHeader() {
@@ -29,14 +30,15 @@ func PrintHeader() {
 func main() {
 	PrintHeader()
 	flag.Parse()
+	common.AutoConfirm = *autoConfirm
 
-	PrintStartLine()
-	LoadEnvironment()
+	common.PrintStartLine()
+	common.LoadEnvironment()
 
 	if *generatePR {
 		RunPRGeneration()
 	} else {
 		RunCommitGeneration()
 	}
-	PrintFinalLine()
+	common.PrintFinalLine()
 }

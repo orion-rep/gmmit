@@ -65,11 +65,11 @@ func TestLoadEnvironment_NoFile(t *testing.T) {
 func TestLoadEnvironment_ValidFile(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "gmenv_test_*")
 	require.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	_, err = tmpFile.WriteString("GMMIT_TEST_KEY=loaded_value\n")
 	require.NoError(t, err)
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	oldEnvFile := envFile
 	envFile = tmpFile.Name()

@@ -29,7 +29,7 @@ func CallPost(url string, payload interface{}, user string, pass string) ([]byte
 		Error(err.Error())
 		return nil, 500, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	Debug("HTTP Status: %s", resp.Status)
 	body, err := io.ReadAll(resp.Body)

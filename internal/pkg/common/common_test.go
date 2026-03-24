@@ -66,6 +66,18 @@ func TestAskConfirmation_Default(t *testing.T) {
 	assert.Equal(t, 0, got)
 }
 
+func TestAskConfirmation_AutoConfirm(t *testing.T) {
+	AutoConfirm = true
+	defer func() { AutoConfirm = false }()
+
+	// StdinReader should never be read when AutoConfirm is set
+	StdinReader = strings.NewReader("")
+
+	var got int
+	captureStdout(func() { got = AskConfirmation("test?") })
+	assert.Equal(t, 1, got)
+}
+
 func TestCheckIfError_NilError(t *testing.T) {
 	// Must not call OsExit for nil error
 	exited := false

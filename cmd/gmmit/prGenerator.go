@@ -6,65 +6,65 @@ import (
 	"strings"
 
 	"github.com/atotto/clipboard"
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	gemini "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 var prPrompt, gitPRDiff, gitDefaultBranch, gitPRBranch, repositoryName, repositoryProvider string = "", "", "", "", "", ""
 
-var callPostFn = CallPost
+var callPostFn = common.CallPost
 
 func RunPRGeneration() {
-	Info("Getting context information")
+	common.Info("Getting context information")
 	getPRContext()
 	generatePRMessage()
 }
 
 func getPRContext() {
 
-	repositoryName, repositoryProvider = GetRepositoryData()
-	gitDefaultBranch = GetDefaultBranch()
-	gitPRBranch = GetCurrentBranch()
-	gitPRDiff = CalculateDiffBetweenBranches(gitDefaultBranch, gitPRBranch)
+	repositoryName, repositoryProvider = common.GetRepositoryData()
+	gitDefaultBranch = common.GetDefaultBranch()
+	gitPRBranch = common.GetCurrentBranch()
+	gitPRDiff = common.CalculateDiffBetweenBranches(gitDefaultBranch, gitPRBranch)
 
 	if len(gitPRDiff) <= 0 {
-		Warning("Git diff returned no files")
-		Warning("Push your commits to the remote branch and run this command again.")
-		PrintFinalLine()
+		common.Warning("Git diff returned no files")
+		common.Warning("Push your commits to the remote branch and run this command again.")
+		common.PrintFinalLine()
 	}
 }
 
 func generatePRMessage() {
 
-	Info("Generating PR message")
+	common.Info("Generating PR message")
 
 	prPrompt = fmt.Sprintf("Create a Pull Request message with following sections: 'What changed?', 'Why/Context', 'How to test it?'. The title line should follow the 'Conventional Commits' standard. The Ticket ID MUST be present on the PR title line, look for it on the branch name: \"%s\". Respond with the pr message only. Title line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. Answer must be a valid json with no '`' characters, following this template: {title:'',description:''}.These are the changes to be merged:\n%s",
 		gitPRBranch, gitPRDiff)
 
-	Debug(prPrompt)
+	common.Debug(prPrompt)
 	res := runPromptFn(prPrompt)
 
-	stringRes := ModelResponseToString(res)
-	Debug("Model Response:\n%s", stringRes)
+	stringRes := gemini.ModelResponseToString(res)
+	common.Debug("Model Response:\n%s", stringRes)
 
 	var response map[string]string
 	err := json.Unmarshal([]byte(stringRes), &response)
-	CheckIfError(err)
+	common.CheckIfError(err)
 	prTitle := response["title"]
 	prDescription := response["description"]
 
-	Info("Text Generated")
-	Info("PR Title:")
-	InfoH(prTitle)
-	Info("PR Description:")
+	common.Info("Text Generated")
+	common.Info("PR Title:")
+	common.InfoH(prTitle)
+	common.Info("PR Description:")
 	prDescriptionLines := strings.Split(string(prDescription), "\n")
 	for _, line := range prDescriptionLines {
-		InfoH(line)
+		common.InfoH(line)
 	}
-	Info("---")
+	common.Info("---")
 
 	if repositoryProvider == "Generic" {
-		Debug("Repository provider not supported, PR creation dissabled")
+		common.Debug("Repository provider not supported, PR creation dissabled")
 		confirmCopyClipboard(prDescription)
 		return
 	}
@@ -73,21 +73,21 @@ func generatePRMessage() {
 }
 
 func confirmPRCreation(title, description, repoProvider string) {
-	switch option := AskConfirmation("Do you want to create the PR with this description(y) or regenerate it (r)? [y/N/r]"); option {
+	switch option := common.AskConfirmation("Do you want to create the PR with this description(y) or regenerate it (r)? [y/N/r]"); option {
 	case 1:
 		prURL := ""
 		switch repoProvider {
-		case GIT_PROVIDER_BITBUCKET:
+		case common.GIT_PROVIDER_BITBUCKET:
 			prURL = createPROnBitbucket(title, description, gitPRBranch, repositoryName)
-		case GIT_PROVIDER_GITHUB:
+		case common.GIT_PROVIDER_GITHUB:
 			prURL = createPROnGithub(title, description, gitPRBranch, gitDefaultBranch, repositoryName)
 		default:
-			Error("Unexpected unknown repository provider: %s", repoProvider)
-			PrintFailLine()
+			common.Error("Unexpected unknown repository provider: %s", repoProvider)
+			common.PrintFailLine()
 		}
-		Info("PR created! You're good to go")
-		err := OpenURL(prURL)
-		CheckIfError(err)
+		common.Info("PR created! You're good to go")
+		err := common.OpenURL(prURL)
+		common.CheckIfError(err)
 	case 2:
 		generatePRMessage()
 	default:
@@ -96,15 +96,15 @@ func confirmPRCreation(title, description, repoProvider string) {
 }
 
 func confirmCopyClipboard(description string) {
-	switch option := AskConfirmation("Do you want to copy this PR description to your clipboard(y) or regenerate the text(r)? [y/N/r]"); option {
+	switch option := common.AskConfirmation("Do you want to copy this PR description to your clipboard(y) or regenerate the text(r)? [y/N/r]"); option {
 	case 1:
 		err := clipboard.WriteAll(description)
-		CheckIfError(err)
-		Info("PR description copied! You're good to go")
+		common.CheckIfError(err)
+		common.Info("PR description copied! You're good to go")
 	case 2:
 		generatePRMessage()
 	default:
-		PrintFinalLine()
+		common.PrintFinalLine()
 	}
 }
 
@@ -122,22 +122,22 @@ func createPROnBitbucket(title string, message string, sourceBranch string, repo
 		"description": message,
 	}
 
-	resp, status, err := callPostFn(url, payload, GetEnvArg("GMMIT_BB_USER"), GetEnvArg("GMMIT_BB_PASS"))
-	CheckIfError(err)
+	resp, status, err := callPostFn(url, payload, common.GetEnvArg("GMMIT_BB_USER"), common.GetEnvArg("GMMIT_BB_PASS"))
+	common.CheckIfError(err)
 
-	response, err := ResponseJsonParser(resp)
-	CheckIfError(err)
-	Debug("Response: %s", response)
+	response, err := common.ResponseJsonParser(resp)
+	common.CheckIfError(err)
+	common.Debug("Response: %s", response)
 
 	if status != 201 {
-		Error("PR creation failed with the following error message:")
+		common.Error("PR creation failed with the following error message:")
 		errorResp := response["error"].(map[string]interface{})
-		Error(fmt.Sprint(errorResp["message"]))
-		PrintFailLine()
+		common.Error(fmt.Sprint(errorResp["message"]))
+		common.PrintFailLine()
 	}
 
 	newPRURL := fmt.Sprint(response["links"].(map[string]interface{})["html"].(map[string]interface{})["href"])
-	Info("PR URL: %s", newPRURL)
+	common.Info("PR URL: %s", newPRURL)
 
 	return newPRURL
 }
@@ -153,24 +153,24 @@ func createPROnGithub(title string, message string, sourceBranch string, baseBra
 		"base":  baseBranch,
 	}
 
-	resp, status, err := callPostFn(url, payload, GetEnvArg("GMMIT_GH_USER"), GetEnvArg("GMMIT_GH_PASS"))
-	CheckIfError(err)
+	resp, status, err := callPostFn(url, payload, common.GetEnvArg("GMMIT_GH_USER"), common.GetEnvArg("GMMIT_GH_PASS"))
+	common.CheckIfError(err)
 
-	response, err := ResponseJsonParser(resp)
-	CheckIfError(err)
-	Debug("Response: %s", response)
+	response, err := common.ResponseJsonParser(resp)
+	common.CheckIfError(err)
+	common.Debug("Response: %s", response)
 
 	if status != 201 {
-		Error("PR creation failed with the following error message:")
-		Error(fmt.Sprint(response["message"]))
+		common.Error("PR creation failed with the following error message:")
+		common.Error(fmt.Sprint(response["message"]))
 		if _, ok := response["errors"]; ok {
-			Error(fmt.Sprint(response["errors"].([]interface{})[0].(map[string]interface{})["message"]))
+			common.Error(fmt.Sprint(response["errors"].([]interface{})[0].(map[string]interface{})["message"]))
 		}
-		PrintFailLine()
+		common.PrintFailLine()
 	}
 
 	newPRURL := fmt.Sprint(response["html_url"])
-	Info("PR URL: %s", newPRURL)
+	common.Info("PR URL: %s", newPRURL)
 
 	return newPRURL
 }
