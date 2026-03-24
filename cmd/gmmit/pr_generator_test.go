@@ -13,6 +13,22 @@ import (
 	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
+func TestGeneratePRPrompt_ContainsAllInputs(t *testing.T) {
+	result := generatePRPrompt("feature/123", "diff content here", "")
+	assert.Contains(t, result, "feature/123")
+	assert.Contains(t, result, "diff content here")
+}
+
+func TestGeneratePRPrompt_WithHint(t *testing.T) {
+	result := generatePRPrompt("feature/123", "diff", "auth refactor")
+	assert.Contains(t, result, `Focus on the following when writing the PR message: "auth refactor"`)
+}
+
+func TestGeneratePRPrompt_NoHint(t *testing.T) {
+	result := generatePRPrompt("feature/123", "diff", "")
+	assert.NotContains(t, result, "Focus on the following")
+}
+
 func TestCreatePROnGithub_Success(t *testing.T) {
 	defer func() { common.LocalEnv = nil }()
 	t.Setenv("GMMIT_GH_USER", "testuser")

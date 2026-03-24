@@ -40,35 +40,45 @@ func makeResponse(text string) *genai.GenerateContentResponse {
 }
 
 func TestGeneratePrompt_ContainsAllInputs(t *testing.T) {
-	result := generatePrompt("feat: <desc>", "feature/123-my-feature", "diff content here", "")
+	result := generatePrompt("feat: <desc>", "feature/123-my-feature", "diff content here", "", "")
 	assert.Contains(t, result, "feat: <desc>")
 	assert.Contains(t, result, "feature/123-my-feature")
 	assert.Contains(t, result, "diff content here")
 }
 
 func TestGeneratePrompt_MentionsConventionalCommits(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff", "")
+	result := generatePrompt("standard", "branch", "diff", "", "")
 	assert.Contains(t, result, "Conventional Commits")
 }
 
 func TestGeneratePrompt_MentionsTicketID(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff", "")
+	result := generatePrompt("standard", "branch", "diff", "", "")
 	assert.Contains(t, result, "Ticket ID")
 }
 
 func TestGeneratePrompt_MentionsBranchName(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff", "")
+	result := generatePrompt("standard", "branch", "diff", "", "")
 	assert.Contains(t, result, "branch name")
 }
 
 func TestGeneratePrompt_WithTypeHint(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff", "fix")
+	result := generatePrompt("standard", "branch", "diff", "fix", "")
 	assert.Contains(t, result, `MUST be: "fix"`)
 }
 
 func TestGeneratePrompt_NoTypeHint(t *testing.T) {
-	result := generatePrompt("standard", "branch", "diff", "")
+	result := generatePrompt("standard", "branch", "diff", "", "")
 	assert.NotContains(t, result, "MUST be:")
+}
+
+func TestGeneratePrompt_WithHint(t *testing.T) {
+	result := generatePrompt("standard", "branch", "diff", "", "database migration")
+	assert.Contains(t, result, `Focus on the following when writing the commit message: "database migration"`)
+}
+
+func TestGeneratePrompt_NoHint(t *testing.T) {
+	result := generatePrompt("standard", "branch", "diff", "", "")
+	assert.NotContains(t, result, "Focus on the following")
 }
 
 func TestValidateCommitType_Valid(t *testing.T) {
