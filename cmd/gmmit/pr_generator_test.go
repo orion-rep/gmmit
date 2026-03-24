@@ -9,24 +9,24 @@ import (
 	"github.com/google/generative-ai-go/genai"
 	"github.com/stretchr/testify/assert"
 
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	gemini "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 func TestCreatePROnGithub_Success(t *testing.T) {
-	defer func() { LocalEnv = nil }()
+	defer func() { common.LocalEnv = nil }()
 	t.Setenv("GMMIT_GH_USER", "testuser")
 	t.Setenv("GMMIT_GH_PASS", "testtoken")
 
 	callPostFn = func(url string, payload interface{}, user string, pass string) ([]byte, int, error) {
 		return []byte(`{"html_url":"https://github.com/owner/repo/pull/1"}`), 201, nil
 	}
-	defer func() { callPostFn = CallPost }()
+	defer func() { callPostFn = common.CallPost }()
 
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("true")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	result := captureStdout(func() {
 		url := createPROnGithub("feat: test", "description", "feature/123", "main", "owner/repo")
@@ -36,19 +36,19 @@ func TestCreatePROnGithub_Success(t *testing.T) {
 }
 
 func TestCreatePROnBitbucket_Success(t *testing.T) {
-	defer func() { LocalEnv = nil }()
+	defer func() { common.LocalEnv = nil }()
 	t.Setenv("GMMIT_BB_USER", "bbuser")
 	t.Setenv("GMMIT_BB_PASS", "bbpass")
 
 	callPostFn = func(url string, payload interface{}, user string, pass string) ([]byte, int, error) {
 		return []byte(`{"links":{"html":{"href":"https://bitbucket.org/owner/repo/pull-requests/1"}}}`), 201, nil
 	}
-	defer func() { callPostFn = CallPost }()
+	defer func() { callPostFn = common.CallPost }()
 
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("true")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	result := captureStdout(func() {
 		url := createPROnBitbucket("feat: test", "description", "feature/123", "owner/repo")
@@ -59,7 +59,7 @@ func TestCreatePROnBitbucket_Success(t *testing.T) {
 
 func TestGetPRContext_Success(t *testing.T) {
 	callCount := 0
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		callCount++
 		switch callCount {
 		case 1:
@@ -72,7 +72,7 @@ func TestGetPRContext_Success(t *testing.T) {
 			return exec.Command("echo", "some diff content") // CalculateDiffBetweenBranches
 		}
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	captureStdout(getPRContext)
 
@@ -91,17 +91,17 @@ func TestGeneratePRMessage_GenericProvider(t *testing.T) {
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse(`{"title":"feat: test","description":"test description"}`)
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
 	// "N" cancels confirmCopyClipboard, which calls PrintFinalLine
-	StdinReader = strings.NewReader("N\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("N\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
-	defer func() { LocalEnv = nil }()
+	defer func() { common.LocalEnv = nil }()
 
 	captureStdout(generatePRMessage)
 	assert.Equal(t, 0, code)
@@ -117,17 +117,17 @@ func TestGeneratePRMessage_GithubProvider_Cancel(t *testing.T) {
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse(`{"title":"feat: test","description":"test description"}`)
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
 	// "N" cancels PR creation, calls confirmCopyClipboard, then "N" again cancels that
-	StdinReader = strings.NewReader("N\nN\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("N\nN\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
-	defer func() { LocalEnv = nil }()
+	defer func() { common.LocalEnv = nil }()
 
 	captureStdout(generatePRMessage)
 	assert.Equal(t, 0, code)
@@ -135,7 +135,7 @@ func TestGeneratePRMessage_GithubProvider_Cancel(t *testing.T) {
 
 func TestRunPRGeneration(t *testing.T) {
 	callCount := 0
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		callCount++
 		switch callCount {
 		case 1:
@@ -148,31 +148,31 @@ func TestRunPRGeneration(t *testing.T) {
 			return exec.Command("echo", "some diff content")
 		}
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse(`{"title":"feat: test","description":"test description"}`)
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
-	StdinReader = strings.NewReader("N\nN\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("N\nN\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
 	captureStdout(RunPRGeneration)
 	assert.Equal(t, 0, code)
 }
 
 func TestConfirmCopyClipboard_Cancel(t *testing.T) {
-	StdinReader = strings.NewReader("N\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("N\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
 	captureStdout(func() { confirmCopyClipboard("test description") })
 	assert.Equal(t, 0, code)

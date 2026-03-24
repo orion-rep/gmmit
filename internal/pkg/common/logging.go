@@ -48,7 +48,7 @@ func Error(format string, args ...interface{}) {
 }
 
 func DeleteLastLine() {
-	fmt.Fprint(os.Stdout, "\033[1A\033[2K")
+	_, _ = fmt.Fprint(os.Stdout, "\033[1A\033[2K")
 }
 
 func PrintStartLine() {

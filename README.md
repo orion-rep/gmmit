@@ -53,7 +53,9 @@ The generated message follows the pattern `<type>[scope]: <description> (#<ticke
 gmmit --pr
 ```
 
-gmmit diffs your branch against the default branch, generates a PR title and description, and — if you're on GitHub or Bitbucket — offers to create the PR directly via the API and open it in your browser. Otherwise it copies the content to your clipboard.
+gmmit diffs your branch against the default branch, generates a PR title and description, and — if you're on GitHub or
+Bitbucket — offers to create the PR directly via the API and open it in your browser. Otherwise it copies the content
+to your clipboard.
 
 To create PRs via the API you'll need an access token. See [docs/git-tokens.md](docs/git-tokens.md) for setup instructions.
 
@@ -75,6 +77,14 @@ gmmit --no-verify
 
 Passes `--no-verify` to `git commit`, skipping any configured pre-commit hooks.
 
+### Non-interactive mode
+
+```bash
+gmmit -y
+```
+
+Skips all confirmation prompts and automatically accepts the first generated message. Useful for scripts and CI pipelines.
+
 ### Options reference
 
 | Option | Description |
@@ -82,6 +92,7 @@ Passes `--no-verify` to `git commit`, skipping any configured pre-commit hooks.
 | `--pr` | Generate a PR title and description instead of a commit message |
 | `--pu` | Automatically push to remote origin after committing |
 | `--no-verify` | Skip pre-commit hooks when creating the commit |
+| `-y` | Auto-confirm all prompts, run in non-interactive mode |
 
 ---
 
@@ -116,7 +127,7 @@ GMMIT_DEBUG=true gmmit
 
 ### FinishReasonSafety — message blocked
 
-```
+```text
 <date-time> blocked: candidate: FinishReasonSafety
 ```
 
@@ -124,7 +135,7 @@ The AI model flagged the diff content as potentially sensitive. Review your stag
 
 ### Error 429 — quota exceeded
 
-```
+```text
 <date-time> googleapi: Error 429:
 ```
 
@@ -132,7 +143,7 @@ You've exceeded the Gemini API rate limit. Wait a moment and try again.
 
 ### Error 500 — unknown error
 
-```
+```text
 <date-time> googleapi: Error 500:
 ```
 
@@ -140,7 +151,7 @@ Intermittent error from the Gemini API. gmmit retries automatically; if it keeps
 
 ### PR fails — ambiguous argument
 
-```
+```text
 fatal: ambiguous argument 'remotes/origin/HEAD': unknown revision or path not in the working tree.
 ```
 

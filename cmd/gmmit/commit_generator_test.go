@@ -11,8 +11,8 @@ import (
 	"github.com/google/generative-ai-go/genai"
 	"github.com/stretchr/testify/assert"
 
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	gemini "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 func captureStdout(f func()) string {
@@ -20,7 +20,7 @@ func captureStdout(f func()) string {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	f()
-	w.Close()
+	_ = w.Close()
 	var buf bytes.Buffer
 	io.Copy(&buf, r) //nolint:errcheck
 	os.Stdout = old
@@ -69,14 +69,14 @@ func TestPrintHeader_ContainsVersion(t *testing.T) {
 
 func TestGetCommitContext_Success(t *testing.T) {
 	callCount := 0
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		callCount++
 		if callCount == 1 {
 			return exec.Command("echo", "some staged diff")
 		}
 		return exec.Command("echo", "feature/123-my-branch")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	diff, branch := GetCommitContext()
 	assert.Contains(t, diff, "some staged diff")
@@ -84,24 +84,24 @@ func TestGetCommitContext_Success(t *testing.T) {
 }
 
 func TestGetCommitContext_EmptyDiff_CallsExit(t *testing.T) {
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("true") // outputs nothing
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
 	captureStdout(func() { GetCommitContext() })
 	assert.Equal(t, 0, code) // PrintFinalLine exits with 0
 }
 
 func TestCreateCommit_NoVerify_False(t *testing.T) {
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("echo", "1 file changed")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	f := false
 	noVerifyFlag = &f
@@ -109,10 +109,10 @@ func TestCreateCommit_NoVerify_False(t *testing.T) {
 }
 
 func TestCreateCommit_NoVerify_True(t *testing.T) {
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("echo", "1 file changed")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	f := true
 	noVerifyFlag = &f
@@ -124,18 +124,18 @@ func TestCreateCommit_NoVerify_True(t *testing.T) {
 }
 
 func TestGenerateCommitMessage_ConfirmYes(t *testing.T) {
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("echo", "1 file changed")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse("feat: test commit message")
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
-	StdinReader = strings.NewReader("y\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("y\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	f := false
 	noVerifyFlag = &f
@@ -150,14 +150,14 @@ func TestGenerateCommitMessage_Cancel(t *testing.T) {
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse("feat: test commit message")
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
-	StdinReader = strings.NewReader("N\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("N\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	var code int
-	OsExit = func(c int) { code = c }
-	defer func() { OsExit = os.Exit }()
+	common.OsExit = func(c int) { code = c }
+	defer func() { common.OsExit = os.Exit }()
 
 	commitStandard = "feat: <desc>"
 	gitDiff = "some diff"
@@ -168,18 +168,18 @@ func TestGenerateCommitMessage_Cancel(t *testing.T) {
 }
 
 func TestGenerateCommitMessage_WithPush(t *testing.T) {
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		return exec.Command("echo", "ok")
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse("feat: test commit message")
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
-	StdinReader = strings.NewReader("y\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("y\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
 	f := false
 	noVerifyFlag = &f
@@ -198,7 +198,7 @@ func TestGenerateCommitMessage_WithPush(t *testing.T) {
 
 func TestRunCommitGeneration(t *testing.T) {
 	callCount := 0
-	ExecCommand = func(name string, args ...string) *exec.Cmd {
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
 		callCount++
 		switch callCount {
 		case 1:
@@ -209,17 +209,17 @@ func TestRunCommitGeneration(t *testing.T) {
 			return exec.Command("echo", "1 file changed")
 		}
 	}
-	defer func() { ExecCommand = exec.Command }()
+	defer func() { common.ExecCommand = exec.Command }()
 
 	runPromptFn = func(p string) *genai.GenerateContentResponse {
 		return makeResponse("feat: test commit message")
 	}
-	defer func() { runPromptFn = RunPrompt }()
+	defer func() { runPromptFn = gemini.RunPrompt }()
 
-	StdinReader = strings.NewReader("y\n")
-	defer func() { StdinReader = os.Stdin }()
+	common.StdinReader = strings.NewReader("y\n")
+	defer func() { common.StdinReader = os.Stdin }()
 
-	defer func() { LocalEnv = nil }()
+	defer func() { common.LocalEnv = nil }()
 
 	f := false
 	noVerifyFlag = &f

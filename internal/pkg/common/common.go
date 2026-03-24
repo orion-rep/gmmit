@@ -15,6 +15,8 @@ var ExecCommand = exec.Command
 
 var StdinReader io.Reader = os.Stdin
 
+var AutoConfirm bool
+
 // RunCommand executes a command-line command with the provided parameters
 // and returns the output of the command as a string.
 func RunCommand(command string, params ...string) string {
@@ -86,6 +88,10 @@ func CheckIfError(err error, context ...string) {
 // 2 for "r" (retry)
 // 0 for any other input (canceled)
 func AskConfirmation(message string) int {
+	if AutoConfirm {
+		return 1
+	}
+
 	Question(message)
 
 	scanner := bufio.NewScanner(StdinReader)

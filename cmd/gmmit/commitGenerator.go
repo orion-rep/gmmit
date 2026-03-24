@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"strings"
 
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	gemini "gitlab.com/orion-rep/gmmit/internal/pkg/ai"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 var commitStandard, prompt, gitDiff, gitBranch string = "", "", "", ""
 
-var runPromptFn = RunPrompt
+var runPromptFn = gemini.RunPrompt
 
 func RunCommitGeneration() {
-	Info("Getting context information")
+	common.Info("Getting context information")
 	gitDiff, gitBranch = GetCommitContext()
-	commitStandard = GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")
+	commitStandard = common.GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")
 	GenerateCommitMessage()
 }
 
@@ -25,72 +25,72 @@ func generatePrompt(commitStandard, gitBranch, gitDiff string) string {
 
 func GenerateCommitMessage() {
 
-	Info("Generating commit message")
+	common.Info("Generating commit message")
 
 	prompt = generatePrompt(commitStandard, gitBranch, gitDiff)
 
-	Debug(prompt)
+	common.Debug(prompt)
 	res := runPromptFn(prompt)
 
-	Info("Text Generated")
-	Info("Commit Message:")
-	PrintModelResponse(res)
-	Info("---")
+	common.Info("Text Generated")
+	common.Info("Commit Message:")
+	gemini.PrintModelResponse(res)
+	common.Info("---")
 
-	switch option := AskConfirmation("Do you want to use this commit message (y) or regenerate it (r)? [y/N/r]"); option {
+	switch option := common.AskConfirmation("Do you want to use this commit message (y) or regenerate it (r)? [y/N/r]"); option {
 	case 1:
-		CreateCommit(ModelResponseToString(res))
-		Info("Commit created.")
+		CreateCommit(gemini.ModelResponseToString(res))
+		common.Info("Commit created.")
 		if *runCommitPush {
 			pushCommit()
 		} else {
-			Warning("Remember to run 'git push' !")
+			common.Warning("Remember to run 'git push' !")
 		}
 	case 2:
 		GenerateCommitMessage()
 	default:
-		PrintFinalLine()
+		common.PrintFinalLine()
 	}
 }
 
 func GetCommitContext() (string, string) {
 
-	diff := string(RunCommand("git", "diff", "--staged"))
+	diff := string(common.RunCommand("git", "diff", "--staged"))
 
 	if len(diff) <= 0 {
-		Warning("Git diff returned no files")
-		Warning("Add some files to the staging area and run this command again")
-		PrintFinalLine()
+		common.Warning("Git diff returned no files")
+		common.Warning("Add some files to the staging area and run this command again")
+		common.PrintFinalLine()
 	}
 
-	branch := strings.ReplaceAll(string(RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
+	branch := strings.ReplaceAll(string(common.RunCommand("git", "rev-parse", "--abbrev-ref", "HEAD")), "\n", "")
 
 	return diff, branch
 
 }
 
 func CreateCommit(msg string) {
-	Info("Creating Commit")
+	common.Info("Creating Commit")
 	gitOptions := []string{"commit"}
 	if *noVerifyFlag {
-		Debug("Adding '--no-verify' option to git commit")
+		common.Debug("Adding '--no-verify' option to git commit")
 		gitOptions = append(gitOptions, "--no-verify")
 	}
 	gitOptions = append(gitOptions, "-m", msg)
 
-	gitCommit := RunCommand("git", gitOptions...)
+	gitCommit := common.RunCommand("git", gitOptions...)
 
-	Info("Git Command Log:")
+	common.Info("Git Command Log:")
 	lines := strings.Split(string(gitCommit), "\n")
 	for _, line := range lines {
-		InfoH(line)
+		common.InfoH(line)
 	}
 }
 
 func pushCommit() {
-	Info("Pushing Commit")
+	common.Info("Pushing Commit")
 	gitOptions := []string{"push"}
-	RunCommand("git", gitOptions...)
+	common.RunCommand("git", gitOptions...)
 
-	Info("Changes pushed to remote repo.")
+	common.Info("Changes pushed to remote repo.")
 }

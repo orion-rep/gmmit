@@ -10,21 +10,21 @@ import (
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 
-	. "gitlab.com/orion-rep/gmmit/internal/pkg/common"
+	"gitlab.com/orion-rep/gmmit/internal/pkg/common"
 )
 
 func RunPrompt(prompt string) *genai.GenerateContentResponse {
 	ctx := context.Background()
-	Debug("Getting GenAI Client")
-	client, err := genai.NewClient(ctx, option.WithAPIKey(GetEnvArg("GMMIT_API_KEY")))
+	common.Debug("Getting GenAI Client")
+	client, err := genai.NewClient(ctx, option.WithAPIKey(common.GetEnvArg("GMMIT_API_KEY")))
 	if err != nil {
-		Error("An error occurred while connecting to Gemmini.")
-		Error("Error: %s", err)
-		PrintFailLine()
+		common.Error("An error occurred while connecting to Gemmini.")
+		common.Error("Error: %s", err)
+		common.PrintFailLine()
 	}
-	defer client.Close()
-	Debug("Getting GenAI Model")
-	model := client.GenerativeModel(GetEnvArg("GMMIT_MODEL", "gemini-2.5-flash-lite"))
+	defer func() { _ = client.Close() }()
+	common.Debug("Getting GenAI Model")
+	model := client.GenerativeModel(common.GetEnvArg("GMMIT_MODEL", "gemini-2.5-flash-lite"))
 	model.SafetySettings = []*genai.SafetySetting{
 		{
 			Category:  genai.HarmCategoryDangerousContent,
@@ -48,16 +48,16 @@ func RunPrompt(prompt string) *genai.GenerateContentResponse {
 // Returns a pointer to the genai.GenerateContentResponse containing the model's response.
 // If an error occurs and cannot be retried, it logs the error using log.Fatal and exits the program.
 func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg string) *genai.GenerateContentResponse {
-	Debug("Starting GenAI Chat")
+	common.Debug("Starting GenAI Chat")
 	cs := model.StartChat()
-	Debug("Sending GenAI Message")
+	common.Debug("Sending GenAI Message")
 
 	var res *genai.GenerateContentResponse
 	var err error
-	maxRetries, err := strconv.Atoi(GetEnvArg("GMMIT_MAX_RETRIES", "5"))
-	CheckIfError(err)
-	retryDelay, err := strconv.Atoi(GetEnvArg("GMMIT_RETRY_DELAY", "5"))
-	CheckIfError(err)
+	maxRetries, err := strconv.Atoi(common.GetEnvArg("GMMIT_MAX_RETRIES", "5"))
+	common.CheckIfError(err)
+	retryDelay, err := strconv.Atoi(common.GetEnvArg("GMMIT_RETRY_DELAY", "5"))
+	common.CheckIfError(err)
 
 	retryDelayDuration := time.Duration(retryDelay) * time.Second
 
@@ -69,22 +69,20 @@ func SendMessageToModel(ctx context.Context, model *genai.GenerativeModel, msg s
 
 		// Check if the error is a 500 Internal Server Error
 		if strings.Contains(err.Error(), "50") {
-			Debug(fmt.Sprintf("Received 500 error, retrying in %v (attempt %d/%d)", retryDelayDuration, i+1, maxRetries))
+			common.Debug(fmt.Sprintf("Received 500 error, retrying in %v (attempt %d/%d)", retryDelayDuration, i+1, maxRetries))
 			time.Sleep(retryDelayDuration)
 			continue
 		}
 
 		// For other errors, break the loop
-		Error("Something went wrong while sending the message to Gemini.")
-		Error("Error: %s", err)
-		//Warning("Retrying AI query...")
-		//time.Sleep(2 * time.Second) // Sleep for 2 seconds
+		common.Error("Something went wrong while sending the message to Gemini.")
+		common.Error("Error: %s", err)
 	}
 
 	if err != nil {
-		Error("Max number of retries reached.")
-		Error("Error: %s", err)
-		PrintFailLine()
+		common.Error("Max number of retries reached.")
+		common.Error("Error: %s", err)
+		common.PrintFailLine()
 	}
 
 	return res
@@ -110,11 +108,10 @@ func PrintModelResponse(resp *genai.GenerateContentResponse) {
 	for _, cand := range resp.Candidates {
 		if cand.Content != nil {
 			for _, part := range cand.Content.Parts {
-				//fmt.Println(part)
 				if text, ok := part.(genai.Text); ok {
 					lines := strings.Split(string(text), "\n")
 					for _, line := range lines {
-						InfoH(line)
+						common.InfoH(line)
 					}
 				}
 			}
