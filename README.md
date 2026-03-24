@@ -85,6 +85,15 @@ gmmit -y
 
 Skips all confirmation prompts and automatically accepts the first generated message. Useful for scripts and CI pipelines.
 
+### Force commit type
+
+```bash
+gmmit --type fix
+```
+
+Tells the model which Conventional Commit type to use. Accepted values: `feat`, `fix`, `docs`, `style`,
+`refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. An invalid value exits with an error.
+
 ### Options reference
 
 | Option | Description |
@@ -93,6 +102,7 @@ Skips all confirmation prompts and automatically accepts the first generated mes
 | `--pu` | Automatically push to remote origin after committing |
 | `--no-verify` | Skip pre-commit hooks when creating the commit |
 | `-y` | Auto-confirm all prompts, run in non-interactive mode |
+| `--type <type>` | Force the commit type (feat, fix, docs, etc.) |
 
 ---
 

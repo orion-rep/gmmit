@@ -14,6 +14,7 @@ var (
 	generatePR    = flag.Bool("pr", false, "Generates a PR Message for changes in branch to be merged into default branch.")
 	runCommitPush = flag.Bool("pu", false, "Runs 'git push' after creating the commit.")
 	autoConfirm   = flag.Bool("y", false, "Auto-confirm all prompts, run in non-interactive mode.")
+	commitType    = flag.String("type", "", "Force the commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert).")
 )
 
 func PrintHeader() {
