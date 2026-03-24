@@ -35,6 +35,10 @@ func RunCommitGeneration() {
 		}
 		commitTypeHint = *commitType
 	}
+	if *addAllFlag || *addAllShortFlag {
+		common.Info("Staging all modified files")
+		common.RunCommand("git", "add", ".")
+	}
 	common.Info("Getting context information")
 	gitDiff, gitBranch = GetCommitContext()
 	commitStandard = common.GetEnvArg("GMMIT_COMMIT_PATTERN", "<type>[optional scope]: <description> (#<ticket-id>)")

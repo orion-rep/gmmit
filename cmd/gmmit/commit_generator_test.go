@@ -241,6 +241,64 @@ func TestGenerateCommitMessage_WithPush(t *testing.T) {
 	captureStdout(func() { GenerateCommitMessage() })
 }
 
+func testRunCommitGenerationAddAll(t *testing.T, setFlag func(), resetFlag func()) {
+	t.Helper()
+	var capturedArgs [][]string
+	callCount := 0
+	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
+		callCount++
+		capturedArgs = append(capturedArgs, append([]string{name}, args...))
+		switch callCount {
+		case 1: // git add .
+			return exec.Command("true")
+		case 2: // git diff --staged
+			return exec.Command("echo", "staged diff content")
+		case 3: // git rev-parse
+			return exec.Command("echo", "feature/123")
+		default: // git commit
+			return exec.Command("echo", "1 file changed")
+		}
+	}
+	defer func() { common.ExecCommand = exec.Command }()
+
+	setFlag()
+	defer resetFlag()
+
+	runPromptFn = func(p string) *genai.GenerateContentResponse {
+		return makeResponse("feat: test commit message")
+	}
+	defer func() { runPromptFn = gemini.RunPrompt }()
+
+	common.StdinReader = strings.NewReader("y\n")
+	defer func() { common.StdinReader = os.Stdin }()
+
+	defer func() { common.LocalEnv = nil }()
+
+	f := false
+	noVerifyFlag = &f
+
+	captureStdout(RunCommitGeneration)
+
+	assert.GreaterOrEqual(t, len(capturedArgs), 1)
+	assert.Equal(t, []string{"git", "add", "."}, capturedArgs[0])
+}
+
+func TestRunCommitGeneration_AddAll(t *testing.T) {
+	tr := true
+	testRunCommitGenerationAddAll(t,
+		func() { addAllFlag = &tr },
+		func() { f := false; addAllFlag = &f },
+	)
+}
+
+func TestRunCommitGeneration_AddAllShort(t *testing.T) {
+	tr := true
+	testRunCommitGenerationAddAll(t,
+		func() { addAllShortFlag = &tr },
+		func() { f := false; addAllShortFlag = &f },
+	)
+}
+
 func TestRunCommitGeneration(t *testing.T) {
 	callCount := 0
 	common.ExecCommand = func(name string, args ...string) *exec.Cmd {
