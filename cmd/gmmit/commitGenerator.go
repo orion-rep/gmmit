@@ -12,6 +12,9 @@ var commitStandard, prompt, gitDiff, gitBranch string = "", "", "", ""
 
 var runPromptFn = gemini.RunPrompt
 
+const systemPrompt = `You're a Software developer with 15 years of experience working for Fortune 100 companies.
+You're detail oriented, and put good effort on writing documentation and comments for your co-workers.`
+
 func RunCommitGeneration() {
 	common.Info("Getting context information")
 	gitDiff, gitBranch = GetCommitContext()
@@ -20,7 +23,14 @@ func RunCommitGeneration() {
 }
 
 func generatePrompt(commitStandard, gitBranch, gitDiff string) string {
-	return fmt.Sprintf("Create a git commit message following the \"Conventional Commits\" standard: \"%s\". The Ticket ID MUST be present on the first line, look for it on the branch name: \"%s\". Respond with the commit message only. First line can not be a generic line, must be a specific change. If there are many changes, list the rest at the end. These are the file changes to be pushed:\n%s", commitStandard, gitBranch, gitDiff)
+	return fmt.Sprintf(`System: %s,
+
+	User: Create a git commit message following the \"Conventional Commits\" standard: \"%s\".
+	The Ticket ID MUST be present on the first line, look for it on the branch name: \"%s\".
+	Respond with the commit message only. First line can not be a generic line, must be a specific change.
+	If there are many changes, list the rest at the end.
+
+	These are the file changes to be pushed:\n%s`, systemPrompt, commitStandard, gitBranch, gitDiff)
 }
 
 func GenerateCommitMessage() {
