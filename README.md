@@ -11,7 +11,7 @@ A CLI tool that uses Google Gemini AI to generate [Conventional Commits](https:/
 ### Linux and macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/orion-rep/gmmit/main/scripts/install.sh | bash
+curl -fsSL https://gmmit.orion.net.ar/install.sh | bash
 ```
 
 The script detects your OS and architecture, downloads the latest release binary, and installs it to `/usr/local/bin`.

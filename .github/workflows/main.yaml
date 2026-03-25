@@ -39,6 +39,29 @@ jobs:
     - name: Build
       run: make build
 
+  pages:
+    needs: [test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Assemble site
+      run: |
+        mkdir -p _site/images
+        cp site/index.html _site/index.html
+        cp site/CNAME _site/CNAME
+        cp scripts/install.sh _site/install.sh
+        cp images/commit.gif _site/images/commit.gif
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./_site
+
   release:
     needs: [test]
     if: startsWith(github.ref, 'refs/tags/v')
